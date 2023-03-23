@@ -1,0 +1,269 @@
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 19-Mar-2023 22:45:11  PAGE    1
+
+************ OBJECT LISTING ************
+
+FILE NAME: D:\Lantern TD\Lantern TD\ffun.c
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+          ffun.c     1    #include "fxlib.h"
+          ffun.c     2    #include "stdlib.h"
+          ffun.c     3    #include "ffun.h"
+          ffun.c     4    
+          ffun.c     5    FONTCHARACTER *char_to_font(const char *cFileName, FONTCHARACTER *fFileName)
+P   00000000              _char_to_font:                   ; function: char_to_font
+                                                           ; frame size=12
+    00000000 2FE6                   MOV.L       R14,@-R15
+    00000002 2FD6                   MOV.L       R13,@-R15
+    00000004 4F22                   STS.L       PR,@-R15
+    00000006 6D43                   MOV         R4,R13
+          ffun.c     6    {
+          ffun.c     7        int i, len = strlen(cFileName);
+    00000008 D327                   MOV.L       L336+2,R3  ; _strlen
+    0000000A 430B                   JSR         @R3
+    0000000C 6E53                   MOV         R5,R14
+    0000000E 6503                   MOV         R0,R5
+          ffun.c     8        for (i = 0; i < len; ++i)
+    00000010 E600                   MOV         #0,R6
+    00000012 4515                   CMP/PL      R5
+    00000014 8F09                   BF/S        L330
+    00000016 6463                   MOV         R6,R4
+    00000018              L331:                             
+          ffun.c     9            fFileName[i] = cFileName[i];
+    00000018 6343                   MOV         R4,R3
+    0000001A 4300                   SHLL        R3
+    0000001C 33EC                   ADD         R14,R3
+    0000001E 6043                   MOV         R4,R0
+    00000020 02DC                   MOV.B       @(R0,R13),R2
+    00000022 7401                   ADD         #1,R4
+    00000024 2321                   MOV.W       R2,@R3
+    00000026 3453                   CMP/GE      R5,R4
+    00000028 8BF6                   BF          L331
+    0000002A              L330:                             
+          ffun.c    10        fFileName[i] = 0;
+    0000002A 6043                   MOV         R4,R0
+    0000002C 4000                   SHLL        R0
+    0000002E 0E65                   MOV.W       R6,@(R0,R14)
+          ffun.c    11        return fFileName;
+          ffun.c    12    }
+    00000030 4F26                   LDS.L       @R15+,PR
+    00000032 60E3                   MOV         R14,R0
+    00000034 6DF6                   MOV.L       @R15+,R13
+    00000036 000B                   RTS
+    00000038 6EF6                   MOV.L       @R15+,R14
+          ffun.c    13    
+          ffun.c    14    int read_text_file(char **text,const char *fFileName)
+    0000003A              _read_text_file:                 ; function: read_text_file
+                                                           ; frame size=84
+    0000003A 2FE6                   MOV.L       R14,@-R15
+    0000003C 2FD6                   MOV.L       R13,@-R15
+    0000003E 6E43                   MOV         R4,R14
+    00000040 2FC6                   MOV.L       R12,@-R15
+    00000042 4F22                   STS.L       PR,@-R15
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 19-Mar-2023 22:45:11  PAGE    2
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+    00000044 7FBC                   ADD         #-68,R15
+    00000046 2F52                   MOV.L       R5,@R15
+          ffun.c    15    {
+          ffun.c    16        int file_handle;
+          ffun.c    17        int len;
+          ffun.c    18        FONTCHARACTER font_file_name[32];
+          ffun.c    19        char_to_font(fFileName, font_file_name);
+    00000048 65F3                   MOV         R15,R5
+    0000004A 7504                   ADD         #4,R5
+    0000004C BFD8                   BSR         _char_to_font
+    0000004E 64F2                   MOV.L       @R15,R4
+          ffun.c    20        file_handle = Bfile_OpenFile(font_file_name, _OPENMODE_READ);
+    00000050 D216                   MOV.L       L336+6,R2  ; _Bfile_OpenFile
+    00000052 E501                   MOV         #1,R5
+    00000054 64F3                   MOV         R15,R4
+    00000056 420B                   JSR         @R2
+    00000058 7404                   ADD         #4,R4
+    0000005A 6D03                   MOV         R0,R13
+          ffun.c    21        if (file_handle < 0)
+    0000005C 4D11                   CMP/PZ      R13
+    0000005E 8901                   BT          L333
+          ffun.c    22            return -1;
+    00000060 A01B                   BRA         L334
+    00000062 E0FF                   MOV         #-1,R0
+    00000064              L333:                             
+          ffun.c    23        len = Bfile_GetFileSize(file_handle);
+    00000064 D212                   MOV.L       L336+10,R2 ; _Bfile_GetFileSize
+    00000066 420B                   JSR         @R2
+    00000068 64D3                   MOV         R13,R4
+    0000006A 6C03                   MOV         R0,R12
+          ffun.c    24        *text = (char *)malloc(len + 1);
+    0000006C D311                   MOV.L       L336+14,R3 ; _malloc
+    0000006E 6403                   MOV         R0,R4
+    00000070 430B                   JSR         @R3
+    00000072 7401                   ADD         #1,R4
+          ffun.c    25        if (*text == 0)
+    00000074 6203                   MOV         R0,R2
+    00000076 2228                   TST         R2,R2
+    00000078 8F02                   BF/S        L335
+    0000007A 2E02                   MOV.L       R0,@R14
+          ffun.c    26            return 0;
+    0000007C A00D                   BRA         L334
+    0000007E E000                   MOV         #0,R0
+    00000080              L335:                             
+          ffun.c    27        Bfile_ReadFile(file_handle, *text, len, 0);
+    00000080 65E2                   MOV.L       @R14,R5
+    00000082 E700                   MOV         #0,R7
+    00000084 D30C                   MOV.L       L336+18,R3 ; _Bfile_ReadFile
+    00000086 66C3                   MOV         R12,R6
+    00000088 430B                   JSR         @R3
+    0000008A 64D3                   MOV         R13,R4
+          ffun.c    28        Bfile_CloseFile(file_handle);
+    0000008C D20B                   MOV.L       L336+22,R2 ; _Bfile_CloseFile
+    0000008E 420B                   JSR         @R2
+    00000090 64D3                   MOV         R13,R4
+          ffun.c    29        (*text)[len] = '\0';
+    00000092 E300                   MOV         #0,R3
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 19-Mar-2023 22:45:11  PAGE    3
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+    00000094 60E2                   MOV.L       @R14,R0
+    00000096 0C34                   MOV.B       R3,@(R0,R12)
+          ffun.c    30        return 1;
+    00000098 E001                   MOV         #1,R0
+          ffun.c    31    }
+    0000009A              L334:                             
+    0000009A 7F44                   ADD         #68,R15
+    0000009C 4F26                   LDS.L       @R15+,PR
+    0000009E 6CF6                   MOV.L       @R15+,R12
+    000000A0 6DF6                   MOV.L       @R15+,R13
+    000000A2 000B                   RTS
+    000000A4 6EF6                   MOV.L       @R15+,R14
+    000000A6              L336:                             
+    000000A6 0000                   .DATA.W     0
+    000000A8 <00000000>             .DATA.L     _strlen
+    000000AC <00000000>             .DATA.L     _Bfile_OpenFile
+    000000B0 <00000000>             .DATA.L     _Bfile_GetFileSize
+    000000B4 <00000000>             .DATA.L     _malloc
+    000000B8 <00000000>             .DATA.L     _Bfile_ReadFile
+    000000BC <00000000>             .DATA.L     _Bfile_CloseFile
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 19-Mar-2023 22:45:11  PAGE    1
+
+
+******** STATISTICS INFORMATION ********
+
+
+********** ERROR INFORMATION ***********
+
+NUMBER OF ERRORS:           0
+NUMBER OF WARNINGS:         0
+
+
+
+
+******* SOURCE LINE INFORMATION ********
+
+COMPILED SOURCE LINE:       31
+
+
+
+******* SECTION SIZE INFORMATION *******
+
+PROGRAM  SECTION (P):                               000000C0 Byte(s)
+CONSTANT SECTION (C):                               00000000 Byte(s)
+DATA     SECTION (D):                               00000000 Byte(s)
+BSS      SECTION (B):                               00000000 Byte(s)
+
+ TOTAL PROGRAM SIZE: 000000C0 Byte(s)
+
+
+
+********** LABEL INFORMATION ***********
+
+NUMBER OF EXTERNAL REFERENCE SYMBOLS:            6
+NUMBER OF EXTERNAL DEFINITION SYMBOLS:           2
+NUMBER OF INTERNAL/EXTERNAL SYMBOLS:            14
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+*** COMMAND PARAMETER ***
+
+
+  -subcommand=C:\Users\hasee\AppData\Local\Temp\hmkAA4A.tmp 
+

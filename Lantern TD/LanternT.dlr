@@ -1,0 +1,703 @@
+[DLSimRunSpace]
+
+[Breakpoint]
+File=D:\Lantern TD\Lantern TD\ini.c
+Line=74
+Flags=00001010
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\LanternT.c
+Line=106
+Flags=00001012
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\Fun.c
+Line=1446
+Flags=00001012
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\Fun.c
+Line=1459
+Flags=00001012
+Sublevel=1
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\Fun.c
+Line=1467
+Flags=00001012
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\Fun.c
+Line=1468
+Flags=00001012
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\Fun.c
+Line=1449
+Flags=00001012
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\Fun.c
+Line=1453
+Flags=00001012
+Sublevel=1
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\Fun.c
+Line=1459
+Flags=00001012
+Sublevel=2
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\Fun.c
+Line=1447
+Flags=00001012
+Sublevel=1
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\Fun.c
+Line=1456
+Flags=00001012
+Sublevel=1
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\Fun.c
+Line=1458
+Flags=00001012
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\Fun.c
+Line=1450
+Flags=00001012
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\Fun.c
+Line=1447
+Flags=00001012
+Sublevel=2
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\Fun.c
+Line=1456
+Flags=00001012
+Sublevel=2
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\Fun.c
+Line=1453
+Flags=00001012
+Sublevel=2
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\Fun.c
+Line=1482
+Flags=00001012
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\Fun.c
+Line=1489
+Flags=00001012
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\LanternT.c
+Line=160
+Flags=00001012
+Sublevel=1
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\LanternT.c
+Line=159
+Flags=00001012
+Sublevel=1
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\LanternT.c
+Line=159
+Flags=00001012
+Sublevel=2
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\Fun.c
+Line=1676
+Flags=00001012
+Sublevel=1
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\Fun.c
+Line=1670
+Flags=00001012
+Sublevel=1
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\Fun.c
+Line=1682
+Flags=00001012
+Sublevel=1
+
+[Breakpoint]
+Address=80000000:8802435C
+Count=00000004
+Name=Tower_Place:Tower_Buffer>->position
+Flags=00000042
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\Fun.c
+Line=1639
+Flags=00001012
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\Fun.c
+Line=1640
+Flags=00001012
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\Fun.c
+Line=1632
+Flags=00001012
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\Fun.c
+Line=1631
+Flags=00001012
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\Fun.c
+Line=1668
+Flags=00001012
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\Fun.c
+Line=1658
+Flags=00001012
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\Fun.c
+Line=1682
+Flags=00001012
+Sublevel=2
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\Fun.c
+Line=1670
+Flags=00001012
+Sublevel=2
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\Fun.c
+Line=1899
+Flags=00001012
+Sublevel=1
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\Fun.c
+Line=1894
+Flags=00001012
+Sublevel=1
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\Fun.c
+Line=1889
+Flags=00001012
+Sublevel=1
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\Fun.c
+Line=1891
+Flags=00001012
+Sublevel=1
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\Fun.c
+Line=1676
+Flags=00001012
+Sublevel=2
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\LanternT.c
+Line=167
+Flags=00001012
+
+[Breakpoint]
+Address=80000000:880243FC
+Count=00000004
+Name=AddIn_main:OpenList->next
+Flags=00000042
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\LanternT.c
+Line=165
+Flags=00001012
+Sublevel=1
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\LanternT.c
+Line=165
+Flags=00001012
+Sublevel=2
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\astara.c
+Line=172
+Flags=00001012
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\astara.c
+Line=200
+Flags=00001012
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\astara.c
+Line=199
+Flags=00001012
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\astara.c
+Line=170
+Flags=00001012
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\astara.c
+Line=168
+Flags=00001012
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\astara.c
+Line=202
+Flags=00001012
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\astara.c
+Line=175
+Flags=00001012
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\astara.c
+Line=181
+Flags=00001012
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\astara.c
+Line=178
+Flags=00001012
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\astara.c
+Line=176
+Flags=00001012
+Sublevel=1
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\astara.c
+Line=176
+Flags=00001012
+Sublevel=2
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\LanternT.c
+Line=178
+Flags=00001012
+Sublevel=1
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\LanternT.c
+Line=160
+Flags=00001012
+Sublevel=2
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\LanternT.c
+Line=160
+Flags=00001012
+Sublevel=3
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\LanternT.c
+Line=164
+Flags=00001012
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\LanternT.c
+Line=178
+Flags=00001012
+Sublevel=2
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\astara.c
+Line=209
+Flags=00001012
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\LanternT.c
+Line=246
+Flags=00001012
+Sublevel=1
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\LanternT.c
+Line=237
+Flags=00001012
+Sublevel=1
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\LanternT.c
+Line=237
+Flags=00001012
+Sublevel=2
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\Fun.c
+Line=1899
+Flags=00001012
+Sublevel=2
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\Fun.c
+Line=1894
+Flags=00001012
+Sublevel=2
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\Fun.c
+Line=1889
+Flags=00001012
+Sublevel=2
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\Fun.c
+Line=1889
+Flags=00001012
+Sublevel=3
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\Fun.c
+Line=1891
+Flags=00001012
+Sublevel=2
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\Fun.c
+Line=1891
+Flags=00001012
+Sublevel=3
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\LanternT.c
+Line=316
+Flags=00001012
+Sublevel=1
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\LanternT.c
+Line=317
+Flags=00001010
+Sublevel=1
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\LanternT.c
+Line=320
+Flags=00001012
+Sublevel=1
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\LanternT.c
+Line=322
+Flags=00001012
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\LanternT.c
+Line=320
+Flags=00001012
+Sublevel=2
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\LanternT.c
+Line=329
+Flags=00001012
+Sublevel=1
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\LanternT.c
+Line=328
+Flags=00001012
+Sublevel=1
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\LanternT.c
+Line=328
+Flags=00001012
+Sublevel=2
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\Fun.c
+Line=1943
+Flags=00001012
+Sublevel=1
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\Fun.c
+Line=1953
+Flags=00001012
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\LanternT.c
+Line=330
+Flags=00001012
+Sublevel=1
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\Fun.c
+Line=1945
+Flags=00001012
+Sublevel=1
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\Fun.c
+Line=1943
+Flags=00001012
+Sublevel=2
+
+[Breakpoint]
+Address=80000000:88024874
+Count=00000004
+Name=AddIn_main:Monster_LiveMonster[1]->Monster_Live
+Flags=00000042
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\LanternT.c
+Line=329
+Flags=00001012
+Sublevel=2
+
+[Breakpoint]
+Address=80000000:8801E2FC
+Count=00000004
+Name=AddIn_main:TowerINIText
+Flags=00000042
+
+[Breakpoint]
+Address=80000000:8801E314
+Count=00000190
+Name=AddIn_main:Monster_LiveMonster
+Flags=00000042
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\Fun.c
+Line=1954
+Flags=00001012
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\Fun.c
+Line=1947
+Flags=00001012
+Sublevel=1
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\Fun.c
+Line=1947
+Flags=00001012
+Sublevel=2
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\Fun.c
+Line=1947
+Flags=00001012
+Sublevel=3
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\Fun.c
+Line=1949
+Flags=00001012
+Sublevel=1
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\Fun.c
+Line=1949
+Flags=00001012
+Sublevel=2
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\LanternT.c
+Line=336
+Flags=00001012
+Sublevel=1
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\Fun.c
+Line=1958
+Flags=00001012
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\Fun.c
+Line=1945
+Flags=00001012
+Sublevel=2
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\LanternT.c
+Line=331
+Flags=00001012
+Sublevel=1
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\LanternT.c
+Line=330
+Flags=00001012
+Sublevel=2
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\LanternT.c
+Line=332
+Flags=00001012
+Sublevel=1
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\LanternT.c
+Line=316
+Flags=00001012
+Sublevel=2
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\LanternT.c
+Line=336
+Flags=00001012
+Sublevel=2
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\LanternT.c
+Line=331
+Flags=00001012
+Sublevel=2
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\LanternT.c
+Line=332
+Flags=00001012
+Sublevel=2
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\LanternT.c
+Line=339
+Flags=00001012
+Sublevel=1
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\Fun.c
+Line=2125
+Flags=00001012
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\LanternT.c
+Line=317
+Flags=00001012
+Sublevel=2
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\LanternT.c
+Line=246
+Flags=00001012
+Sublevel=2
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\LanternT.c
+Line=326
+Flags=00001012
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\LanternT.c
+Line=324
+Flags=00001012
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\LanternT.c
+Line=361
+Flags=00001012
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\LanternT.c
+Line=352
+Flags=00001012
+Sublevel=1
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\LanternT.c
+Line=353
+Flags=00001012
+Sublevel=1
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\LanternT.c
+Line=312
+Flags=00001012
+Sublevel=1
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\LanternT.c
+Line=312
+Flags=00001012
+Sublevel=2
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\LanternT.c
+Line=309
+Flags=00001012
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\LanternT.c
+Line=339
+Flags=00001012
+Sublevel=2
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\LanternT.c
+Line=353
+Flags=00001012
+Sublevel=2
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\LanternT.c
+Line=369
+Flags=00001012
+Sublevel=1
+
+[Breakpoint]
+Address=80000000:8801E4AC
+Count=00000004
+Name=AddIn_main:Monster_DataBase[4]
+Flags=00000042
+
+[Breakpoint]
+Address=80000000:8801E49C
+Count=00000004
+Name=AddIn_main:Monster_DataBase[0]
+Flags=00000042
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\LanternT.c
+Line=374
+Flags=00001012
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\LanternT.c
+Line=352
+Flags=00001012
+Sublevel=2
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\LanternT.c
+Line=369
+Flags=00001012
+Sublevel=2
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\LanternT.c
+Line=369
+Flags=00001012
+Sublevel=3
+
+[Breakpoint]
+File=D:\c++learning\Lantern TD\LanternT.c
+Line=373
+Flags=00001012
+
+[Watch]
+Name=Tower_Buffer

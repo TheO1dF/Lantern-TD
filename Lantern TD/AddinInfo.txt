@@ -1,0 +1,12 @@
+//------------------------------------------------------------------
+// Addin-Application header control file, created with the CASIO SDK
+//------------------------------------------------------------------
+[OUTPUT]     : "LANTERNT.G1A"
+[BINDATA]    : "FXADDINror.bin"
+[DISPNAME]   : "LanternT"
+[APPNAME]    : "@LANTERN"
+[VERSION]    : "00.01.0000"
+[APL_ICON]   : "MainIcon.bmp"
+[MODULE_NUM] : 0
+[MOD1_TITLE] : "LanternT"
+[MOD1_ICON]  : "eActivityIcon.bmp"

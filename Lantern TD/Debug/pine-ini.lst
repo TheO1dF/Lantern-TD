@@ -1,0 +1,2117 @@
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 17-Mar-2023 12:51:29  PAGE    1
+
+************ OBJECT LISTING ************
+
+FILE NAME: D:\Lantern TD\Lantern TD\pine-ini.c
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+      pine-ini.c     1    #include <stdlib.h>
+      pine-ini.c     2    #include "pine-ini.h"
+      pine-ini.c     3    
+      pine-ini.c     4    #define isWhitespace(c) ((c) == ' ' || c == '\r' || c == '\n' || c == '\t')
+      pine-ini.c     5    
+      pine-ini.c     6    const char *PINE_INI_ERRMSG[] = {
+      pine-ini.c     7        "No error",
+      pine-ini.c     8        "Illegal pattern",
+      pine-ini.c     9        "Empty key",
+      pine-ini.c    10        "Sections exceed",
+      pine-ini.c    11        "Parameters exceed"};
+      pine-ini.c    12    
+      pine-ini.c    13    //
+      pine-ini.c    14    // * Parser
+      pine-ini.c    15    //
+      pine-ini.c    16    
+      pine-ini.c    17    #define PARSER_ACTION_CONTINUE 1
+      pine-ini.c    18    #define PARSER_ACTION_END 0
+      pine-ini.c    19    
+      pine-ini.c    20    typedef struct tagPineIniParser
+      pine-ini.c    21    {
+      pine-ini.c    22        const char *textBuffer;
+      pine-ini.c    23        const char *currentPointer;
+      pine-ini.c    24        int lineNumber;
+      pine-ini.c    25    } PineIniParser;
+      pine-ini.c    26    
+      pine-ini.c    27    static PineIniParser *PineIni_Parser_New(const char *textBuffer)
+P   00000000              __$PineIni_Parser_New:           ; function: PineIni_Parser_New
+                                                           ; frame size=8
+    00000000 4F22                   STS.L       PR,@-R15
+    00000002 7FFC                   ADD         #-4,R15
+      pine-ini.c    28    {
+      pine-ini.c    29        PineIniParser *parser = (PineIniParser *)malloc(sizeof(PineIniParser));
+    00000004 D33A                   MOV.L       L648,R3    ; _malloc
+    00000006 2F42                   MOV.L       R4,@R15
+    00000008 430B                   JSR         @R3
+    0000000A E40C                   MOV         #12,R4
+      pine-ini.c    30    
+      pine-ini.c    31        parser->textBuffer = textBuffer;
+    0000000C 62F2                   MOV.L       @R15,R2
+    0000000E 6403                   MOV         R0,R4
+    00000010 2422                   MOV.L       R2,@R4
+      pine-ini.c    32        parser->currentPointer = parser->textBuffer;
+    00000012 6323                   MOV         R2,R3
+    00000014 1421                   MOV.L       R2,@(4,R4)
+      pine-ini.c    33        parser->lineNumber = 0;
+    00000016 E200                   MOV         #0,R2
+    00000018 1422                   MOV.L       R2,@(8,R4)
+      pine-ini.c    34    
+      pine-ini.c    35        return parser;
+      pine-ini.c    36    }
+    0000001A 7F04                   ADD         #4,R15
+    0000001C 4F26                   LDS.L       @R15+,PR
+    0000001E 000B                   RTS
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 17-Mar-2023 12:51:29  PAGE    2
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+    00000020 6043                   MOV         R4,R0
+      pine-ini.c    37    
+      pine-ini.c    38    static void PineIni_Parser_Destroy(PineIniParser *parser)
+    00000022              __$PineIni_Parser_Destroy:       ; function: PineIni_Parser_Destroy
+                                                           ; frame size=0
+      pine-ini.c    39    {
+      pine-ini.c    40        if (parser)
+    00000022 2448                   TST         R4,R4
+    00000024 8902                   BT          L649
+    00000026 D333                   MOV.L       L648+4,R3  ; _free
+    00000028 432B                   JMP         @R3
+    0000002A 0009                   NOP
+    0000002C              L649:                             
+      pine-ini.c    41        {
+      pine-ini.c    42            free(parser);
+      pine-ini.c    43        }
+      pine-ini.c    44    }
+    0000002C 000B                   RTS
+    0000002E 0009                   NOP
+      pine-ini.c    45    
+      pine-ini.c    46    //
+      pine-ini.c    47    // Return
+      pine-ini.c    48    // PARSER_ACTION_END        -> buffer end
+      pine-ini.c    49    // PARSER_ACTION_CONTINUE   -> buffer has follow-up content
+      pine-ini.c    50    //
+      pine-ini.c    51    static int PineIni_Parser_Gets(PineIniParser *parser, char *buf)
+    00000030              __$PineIni_Parser_Gets:          ; function: PineIni_Parser_Gets
+                                                           ; frame size=0
+      pine-ini.c    52    {
+      pine-ini.c    53        char *pBuf = buf;
+      pine-ini.c    54    
+      pine-ini.c    55        parser->lineNumber++;
+    00000030 5342                   MOV.L       @(8,R4),R3
+    00000032 7301                   ADD         #1,R3
+      pine-ini.c    56    
+      pine-ini.c    57        while (*parser->currentPointer != '\n' && *parser->currentPointer != '\0')
+    00000034 A007                   BRA         L539
+    00000036 1432                   MOV.L       R3,@(8,R4)
+    00000038              L540:                             
+      pine-ini.c    58        {
+      pine-ini.c    59            *(pBuf++) = *(parser->currentPointer++);
+    00000038 5341                   MOV.L       @(4,R4),R3
+    0000003A 7301                   ADD         #1,R3
+    0000003C 1431                   MOV.L       R3,@(4,R4)
+    0000003E 73FF                   ADD         #-1,R3
+    00000040 6230                   MOV.B       @R3,R2
+    00000042 2520                   MOV.B       R2,@R5
+    00000044 7501                   ADD         #1,R5
+    00000046              L539:                             
+    00000046 5641                   MOV.L       @(4,R4),R6
+    00000048 6660                   MOV.B       @R6,R6
+    0000004A 6063                   MOV         R6,R0
+    0000004C 880A                   CMP/EQ      #10,R0
+    0000004E 8901                   BT          L541
+    00000050 2668                   TST         R6,R6
+    00000052 8BF1                   BF          L540
+    00000054              L541:                             
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 17-Mar-2023 12:51:29  PAGE    3
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+      pine-ini.c    60        }
+      pine-ini.c    61    
+      pine-ini.c    62        *pBuf = '\0';
+    00000054 E300                   MOV         #0,R3
+    00000056 2530                   MOV.B       R3,@R5
+      pine-ini.c    63    
+      pine-ini.c    64        if (*parser->currentPointer == '\0')
+    00000058 5241                   MOV.L       @(4,R4),R2
+    0000005A 6320                   MOV.B       @R2,R3
+    0000005C 2338                   TST         R3,R3
+    0000005E 8B01                   BF          L542
+      pine-ini.c    65        {
+      pine-ini.c    66            return PARSER_ACTION_END;
+    00000060 000B                   RTS
+    00000062 E000                   MOV         #0,R0
+    00000064              L542:                             
+      pine-ini.c    67        }
+      pine-ini.c    68        else
+      pine-ini.c    69        {
+      pine-ini.c    70            // Skip LF
+      pine-ini.c    71            parser->currentPointer++;
+    00000064 5241                   MOV.L       @(4,R4),R2
+      pine-ini.c    72            return PARSER_ACTION_CONTINUE;
+    00000066 E001                   MOV         #1,R0
+    00000068 7201                   ADD         #1,R2
+    0000006A 1421                   MOV.L       R2,@(4,R4)
+      pine-ini.c    73        }
+      pine-ini.c    74    }
+    0000006C              L543:                             
+    0000006C 000B                   RTS
+    0000006E 0009                   NOP
+      pine-ini.c    75    
+      pine-ini.c    76    static PINE_BOOL PineIni_Line_Empty(const char *line, const int length)
+    00000070              __$PineIni_Line_Empty:           ; function: PineIni_Line_Empty
+                                                           ; frame size=8
+                                                           ; used runtime library name:
+                                                           ; __slow_strcmp1
+    00000070 4F22                   STS.L       PR,@-R15
+      pine-ini.c    77    {
+      pine-ini.c    78        if (length <= 0 || PineIni_StringEquals("", line))
+    00000072 6353                   MOV         R5,R3
+    00000074 7FFC                   ADD         #-4,R15
+    00000076 4315                   CMP/PL      R3
+    00000078 8F07                   BF/S        L546
+    0000007A 2F52                   MOV.L       R5,@R15
+    0000007C D31F                   MOV.L       L648+12,R3 ; __slow_strcmp1
+    0000007E 6543                   MOV         R4,R5
+    00000080 D41D                   MOV.L       L648+8,R4  ; L321
+    00000082 430B                   JSR         @R3
+    00000084 0009                   NOP
+    00000086 2008                   TST         R0,R0
+    00000088 8B03                   BF          L545
+    0000008A              L546:                             
+      pine-ini.c    79        {
+      pine-ini.c    80            return PINE_TRUE;
+    0000008A 7F04                   ADD         #4,R15
+    0000008C 4F26                   LDS.L       @R15+,PR
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 17-Mar-2023 12:51:29  PAGE    4
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+    0000008E 000B                   RTS
+    00000090 E001                   MOV         #1,R0
+    00000092              L545:                             
+      pine-ini.c    81        }
+      pine-ini.c    82        return PINE_FALSE;
+    00000092 E000                   MOV         #0,R0
+      pine-ini.c    83    }
+    00000094              L547:                             
+    00000094 7F04                   ADD         #4,R15
+    00000096 4F26                   LDS.L       @R15+,PR
+    00000098 000B                   RTS
+    0000009A 0009                   NOP
+      pine-ini.c    84    
+      pine-ini.c    85    static PINE_BOOL PineIni_Line_IsComment(const char *line, const int length)
+    0000009C              __$PineIni_Line_IsComment:       ; function: PineIni_Line_IsComment
+                                                           ; frame size=0
+      pine-ini.c    86    {
+      pine-ini.c    87        if (length >= 1 && line[0] == ';')
+    0000009C E301                   MOV         #1,R3
+    0000009E 3533                   CMP/GE      R3,R5
+    000000A0 8B04                   BF          L548
+    000000A2 6040                   MOV.B       @R4,R0
+    000000A4 883B                   CMP/EQ      #59,R0
+    000000A6 8B01                   BF          L548
+      pine-ini.c    88        {
+      pine-ini.c    89            return PINE_TRUE;
+    000000A8 000B                   RTS
+    000000AA E001                   MOV         #1,R0
+    000000AC              L548:                             
+      pine-ini.c    90        }
+      pine-ini.c    91        return PINE_FALSE;
+    000000AC E000                   MOV         #0,R0
+      pine-ini.c    92    }
+    000000AE              L549:                             
+    000000AE 000B                   RTS
+    000000B0 0009                   NOP
+      pine-ini.c    93    
+      pine-ini.c    94    static PINE_BOOL PineIni_Line_IsSection(const char *line, const int length)
+    000000B2              __$PineIni_Line_IsSection:       ; function: PineIni_Line_IsSection
+                                                           ; frame size=0
+      pine-ini.c    95    {
+      pine-ini.c    96        if (length >= 2 && line[0] == '[' && line[length - 1] == ']')
+    000000B2 E302                   MOV         #2,R3
+    000000B4 3533                   CMP/GE      R3,R5
+    000000B6 8B09                   BF          L550
+    000000B8 6040                   MOV.B       @R4,R0
+    000000BA 885B                   CMP/EQ      #91,R0
+    000000BC 8B06                   BF          L550
+    000000BE 6053                   MOV         R5,R0
+    000000C0 70FF                   ADD         #-1,R0
+    000000C2 004C                   MOV.B       @(R0,R4),R0
+    000000C4 885D                   CMP/EQ      #93,R0
+    000000C6 8B01                   BF          L550
+      pine-ini.c    97        {
+      pine-ini.c    98            return PINE_TRUE;
+    000000C8 000B                   RTS
+    000000CA E001                   MOV         #1,R0
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 17-Mar-2023 12:51:29  PAGE    5
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+    000000CC              L550:                             
+      pine-ini.c    99        }
+      pine-ini.c   100        return PINE_FALSE;
+    000000CC E000                   MOV         #0,R0
+      pine-ini.c   101    }
+    000000CE              L551:                             
+    000000CE 000B                   RTS
+    000000D0 0009                   NOP
+      pine-ini.c   102    
+      pine-ini.c   103    static PINE_BOOL PineIni_Line_IsParameter(const char *line, const int length)
+    000000D2              __$PineIni_Line_IsParameter:     ; function: PineIni_Line_IsParameter
+                                                           ; frame size=0
+      pine-ini.c   104    {
+      pine-ini.c   105        int i;
+      pine-ini.c   106        for (i = 0; i < length; ++i)
+    000000D2 4515                   CMP/PL      R5
+    000000D4 8F09                   BF/S        L552
+    000000D6 E600                   MOV         #0,R6
+    000000D8              L553:                             
+      pine-ini.c   107        {
+      pine-ini.c   108            if (line[i] == '=')
+    000000D8 6040                   MOV.B       @R4,R0
+    000000DA 883D                   CMP/EQ      #61,R0
+    000000DC 8B01                   BF          L554
+      pine-ini.c   109            {
+      pine-ini.c   110                return PINE_TRUE;
+    000000DE 000B                   RTS
+    000000E0 E001                   MOV         #1,R0
+    000000E2              L554:                             
+    000000E2 7601                   ADD         #1,R6
+    000000E4 3653                   CMP/GE      R5,R6
+    000000E6 8FF7                   BF/S        L553
+    000000E8 7401                   ADD         #1,R4
+    000000EA              L552:                             
+      pine-ini.c   111            }
+      pine-ini.c   112        }
+      pine-ini.c   113        return PINE_FALSE;
+    000000EA E000                   MOV         #0,R0
+      pine-ini.c   114    }
+    000000EC              L555:                             
+    000000EC 000B                   RTS
+    000000EE 0009                   NOP
+    000000F0              L648:                             
+    000000F0 <00000000>             .DATA.L     _malloc
+    000000F4 <00000000>             .DATA.L     _free
+    000000F8 <00000000>             .DATA.L     L321
+    000000FC <00000000>             .DATA.L     __slow_strcmp1
+      pine-ini.c   115    
+      pine-ini.c   116    //
+      pine-ini.c   117    // * Parse API
+      pine-ini.c   118    //
+      pine-ini.c   119    
+      pine-ini.c   120    #define PARSER_RETURN_ERROR(error_code)        \
+      pine-ini.c   121        (void *)0;                                 \
+      pine-ini.c   122        errorRet->lineNumber = parser->lineNumber; \
+      pine-ini.c   123        errorRet->errorCode = (error_code);        \
+      pine-ini.c   124        strcpy(errorRet->lineContent, lineBuffer); \
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 17-Mar-2023 12:51:29  PAGE    6
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+      pine-ini.c   125        PineIni_Parser_Destroy(parser);            \
+      pine-ini.c   126        PineIni_Destroy(iniResult);                \
+      pine-ini.c   127        return NULL;
+      pine-ini.c   128    
+      pine-ini.c   129    PineIniFile *PineIni_Parse(const char *iniText, PineIniError *errorRet)
+    00000100              _PineIni_Parse:                  ; function: PineIni_Parse
+                                                           ; frame size=500
+                                                           ; used runtime library name:
+                                                           ; __slow_strcpy
+    00000100 2FE6                   MOV.L       R14,@-R15
+    00000102 2FD6                   MOV.L       R13,@-R15
+    00000104 2FC6                   MOV.L       R12,@-R15
+    00000106 2FB6                   MOV.L       R11,@-R15
+    00000108 2FA6                   MOV.L       R10,@-R15
+    0000010A 2F96                   MOV.L       R9,@-R15
+    0000010C 2F86                   MOV.L       R8,@-R15
+    0000010E 4F22                   STS.L       PR,@-R15
+    00000110 9053                   MOV.W       L650,R0    ; H'FE2C
+    00000112 3F0C                   ADD         R0,R15
+      pine-ini.c   130    {
+      pine-ini.c   131        char lineBuffer[PINE_INI_LINE_MAX_LEN];
+      pine-ini.c   132        int lineLength;
+      pine-ini.c   133        int getsRetCode;
+      pine-ini.c   134        PineIniParser *parser;
+      pine-ini.c   135        PineIniFile *iniResult;
+      pine-ini.c   136        PineIniSection *currentSection;
+      pine-ini.c   137    
+      pine-ini.c   138        parser = PineIni_Parser_New(iniText);
+    00000114 BF74                   BSR         __$PineIni_Parser_New
+    00000116 6D53                   MOV         R5,R13
+      pine-ini.c   139    
+      pine-ini.c   140        // Create iniResult
+      pine-ini.c   141        iniResult = (PineIniFile *)malloc(sizeof(PineIniFile));
+    00000118 D229                   MOV.L       L650+6,R2  ; _malloc
+    0000011A 6C03                   MOV         R0,R12
+    0000011C 420B                   JSR         @R2
+    0000011E E468                   MOV         #104,R4
+      pine-ini.c   142        iniResult->numSection = 0;
+      pine-ini.c   143    
+      pine-ini.c   144        // Create a default section for file
+      pine-ini.c   145        // and append to iniResult
+      pine-ini.c   146        currentSection = PineIni_Section_New("_default");
+    00000120 D428                   MOV.L       L650+10,R4 ; L349
+    00000122 6B03                   MOV         R0,R11
+    00000124 EE00                   MOV         #0,R14
+    00000126 B113                   BSR         _PineIni_Section_New
+    00000128 2BE2                   MOV.L       R14,@R11
+      pine-ini.c   147        PineIni_Append(iniResult, currentSection);
+    0000012A 6503                   MOV         R0,R5
+    0000012C 2F02                   MOV.L       R0,@R15
+    0000012E B0E4                   BSR         _PineIni_Append
+    00000130 64B3                   MOV         R11,R4
+      pine-ini.c   148    
+      pine-ini.c   149        // Clear error info
+      pine-ini.c   150        errorRet->lineNumber = 0;
+      pine-ini.c   151        errorRet->errorCode = PINE_INI_ERRCODE_NO;
+      pine-ini.c   152        strcpy(errorRet->lineContent, "");
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 17-Mar-2023 12:51:29  PAGE    7
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+    00000132 60D3                   MOV         R13,R0
+    00000134 D225                   MOV.L       L650+18,R2 ; __slow_strcpy
+    00000136 1DE1                   MOV.L       R14,@(4,R13)
+    00000138 2DE2                   MOV.L       R14,@R13
+    0000013A D123                   MOV.L       L650+14,R1 ; L321
+    0000013C 420B                   JSR         @R2
+    0000013E 7008                   ADD         #8,R0
+      pine-ini.c   153    
+      pine-ini.c   154        do
+    00000140              L556:                             
+      pine-ini.c   155        {
+      pine-ini.c   156            // Get line from parser
+      pine-ini.c   157            getsRetCode = PineIni_Parser_Gets(parser, lineBuffer);
+    00000140 9E3C                   MOV.W       L650+2,R14 ; H'013C
+    00000142 3EFC                   ADD         R15,R14
+    00000144 65E3                   MOV         R14,R5
+    00000146 BF73                   BSR         __$PineIni_Parser_Gets
+    00000148 64C3                   MOV         R12,R4
+    0000014A 1F02                   MOV.L       R0,@(8,R15)
+      pine-ini.c   158    
+      pine-ini.c   159            // Trim white spaces
+      pine-ini.c   160            PineIni_StringTrim(lineBuffer);
+    0000014C B2A1                   BSR         _PineIni_StringTrim
+    0000014E 64E3                   MOV         R14,R4
+      pine-ini.c   161    
+      pine-ini.c   162            // Check pattern
+      pine-ini.c   163            lineLength = strlen(lineBuffer);
+    00000150 D21F                   MOV.L       L650+22,R2 ; _strlen
+    00000152 420B                   JSR         @R2
+    00000154 64E3                   MOV         R14,R4
+    00000156 6903                   MOV         R0,R9
+      pine-ini.c   164    
+      pine-ini.c   165            // Pattern : empty
+      pine-ini.c   166            if (PineIni_Line_Empty(lineBuffer, lineLength))
+    00000158 6503                   MOV         R0,R5
+    0000015A BF89                   BSR         __$PineIni_Line_Empty
+    0000015C 64E3                   MOV         R14,R4
+    0000015E 2008                   TST         R0,R0
+    00000160 8901                   BT          L651
+    00000162 A08A                   BRA         L558
+    00000164 0009                   NOP
+    00000166              L651:                             
+      pine-ini.c   167            {
+      pine-ini.c   168                continue;
+      pine-ini.c   169            }
+      pine-ini.c   170            // Pattern : comment
+      pine-ini.c   171            else if (PineIni_Line_IsComment(lineBuffer, lineLength))
+    00000166 6593                   MOV         R9,R5
+    00000168 BF98                   BSR         __$PineIni_Line_IsComment
+    0000016A 64E3                   MOV         R14,R4
+    0000016C 2008                   TST         R0,R0
+    0000016E 8901                   BT          L652
+    00000170 A083                   BRA         L558
+    00000172 0009                   NOP
+    00000174              L652:                             
+      pine-ini.c   172            {
+      pine-ini.c   173                continue;
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 17-Mar-2023 12:51:29  PAGE    8
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+      pine-ini.c   174            }
+      pine-ini.c   175            // Pattern : section
+      pine-ini.c   176            else if (PineIni_Line_IsSection(lineBuffer, lineLength))
+    00000174 6593                   MOV         R9,R5
+    00000176 BF9C                   BSR         __$PineIni_Line_IsSection
+    00000178 64E3                   MOV         R14,R4
+    0000017A 2008                   TST         R0,R0
+    0000017C 892A                   BT          L562
+      pine-ini.c   177            {
+      pine-ini.c   178                char sectionName[PINE_INI_LINE_MAX_LEN];
+      pine-ini.c   179                PineIniSection *section;
+      pine-ini.c   180    
+      pine-ini.c   181                PineIni_Substring(sectionName, lineBuffer, 1, lineLength - 2);
+    0000017E 6793                   MOV         R9,R7
+    00000180 9A1D                   MOV.W       L650+4,R10 ; H'00A4
+    00000182 E601                   MOV         #1,R6
+    00000184 3AFC                   ADD         R15,R10
+    00000186 77FE                   ADD         #-2,R7
+    00000188 65E3                   MOV         R14,R5
+    0000018A B22F                   BSR         _PineIni_Substring
+    0000018C 64A3                   MOV         R10,R4
+      pine-ini.c   182    
+      pine-ini.c   183                section = PineIni_Find(iniResult, sectionName);
+    0000018E 65A3                   MOV         R10,R5
+    00000190 B086                   BSR         _PineIni_Find
+    00000192 64B3                   MOV         R11,R4
+    00000194 6E03                   MOV         R0,R14
+      pine-ini.c   184    
+      pine-ini.c   185                // Section name not exist in iniResult
+      pine-ini.c   186                if (section == NULL)
+    00000196 2EE8                   TST         R14,R14
+    00000198 8B0D                   BF          L563
+      pine-ini.c   187                {
+      pine-ini.c   188                    // Check if exceed
+      pine-ini.c   189                    if (iniResult->numSection >= PINE_INI_MAX_NUM_SECTIONS)
+    0000019A E219                   MOV         #25,R2
+    0000019C 63B2                   MOV.L       @R11,R3
+    0000019E 3323                   CMP/GE      R2,R3
+    000001A0 8B03                   BF          L564
+      pine-ini.c   190                    {
+      pine-ini.c   191                        PARSER_RETURN_ERROR(PINE_INI_ERRCODE_SECTION_EXCEED);
+    000001A2 50C2                   MOV.L       @(8,R12),R0
+    000001A4 1D01                   MOV.L       R0,@(4,R13)
+    000001A6 A050                   BRA         L646
+    000001A8 E403                   MOV         #3,R4
+    000001AA              L564:                             
+      pine-ini.c   192                    }
+      pine-ini.c   193    
+      pine-ini.c   194                    // Create a new section and append in iniResult
+      pine-ini.c   195                    section = PineIni_Section_New(sectionName);
+    000001AA B0D1                   BSR         _PineIni_Section_New
+    000001AC 64A3                   MOV         R10,R4
+    000001AE 6E03                   MOV         R0,R14
+      pine-ini.c   196                    PineIni_Append(iniResult, section);
+    000001B0 6503                   MOV         R0,R5
+    000001B2 B0A2                   BSR         _PineIni_Append
+    000001B4 64B3                   MOV         R11,R4
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 17-Mar-2023 12:51:29  PAGE    9
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+    000001B6              L563:                             
+      pine-ini.c   197                }
+      pine-ini.c   198    
+      pine-ini.c   199                currentSection = section;
+      pine-ini.c   200    
+      pine-ini.c   201                continue;
+    000001B6 A060                   BRA         L558
+    000001B8 2FE2                   MOV.L       R14,@R15
+    000001BA              L650:                             
+    000001BA FE2C                   .DATA.W     H'FE2C
+    000001BC 013C                   .DATA.W     H'013C
+    000001BE 00A4                   .DATA.W     H'00A4
+    000001C0 <00000000>             .DATA.L     _malloc
+    000001C4 <00000000>             .DATA.L     L349
+    000001C8 <00000000>             .DATA.L     L321
+    000001CC <00000000>             .DATA.L     __slow_strcpy
+    000001D0 <00000000>             .DATA.L     _strlen
+    000001D4              L562:                             
+      pine-ini.c   202            }
+      pine-ini.c   203            // Pattern : parameter
+      pine-ini.c   204            else if (PineIni_Line_IsParameter(lineBuffer, lineLength))
+    000001D4 6593                   MOV         R9,R5
+    000001D6 BF7C                   BSR         __$PineIni_Line_IsParameter
+    000001D8 64E3                   MOV         R14,R4
+    000001DA 2008                   TST         R0,R0
+    000001DC 893D                   BT          L567
+      pine-ini.c   205            {
+      pine-ini.c   206                char key[PINE_INI_LINE_MAX_LEN];
+      pine-ini.c   207                char value[PINE_INI_LINE_MAX_LEN];
+      pine-ini.c   208                int equalPos;
+      pine-ini.c   209                PineIniParameter *param;
+      pine-ini.c   210    
+      pine-ini.c   211                // Get key and value
+      pine-ini.c   212                equalPos = PineIni_FindChar(lineBuffer, '=');
+    000001DE E53D                   MOV         #61,R5
+    000001E0 B1F5                   BSR         _PineIni_FindChar
+    000001E2 64E3                   MOV         R14,R4
+    000001E4 1F01                   MOV.L       R0,@(4,R15)
+      pine-ini.c   213                PineIni_Substring(key, lineBuffer, 0, equalPos - 1);
+    000001E6 6703                   MOV         R0,R7
+    000001E8 9A73                   MOV.W       L653,R10   ; H'00A4
+    000001EA E600                   MOV         #0,R6
+    000001EC 3AFC                   ADD         R15,R10
+    000001EE 77FF                   ADD         #-1,R7
+    000001F0 65E3                   MOV         R14,R5
+    000001F2 B1FB                   BSR         _PineIni_Substring
+    000001F4 64A3                   MOV         R10,R4
+      pine-ini.c   214                PineIni_Substring(value, lineBuffer, equalPos + 1, lineLength - 1);
+    000001F6 68F3                   MOV         R15,R8
+    000001F8 56F1                   MOV.L       @(4,R15),R6
+    000001FA 65E3                   MOV         R14,R5
+    000001FC 780C                   ADD         #12,R8
+    000001FE 6793                   MOV         R9,R7
+    00000200 77FF                   ADD         #-1,R7
+    00000202 7601                   ADD         #1,R6
+    00000204 B1F2                   BSR         _PineIni_Substring
+    00000206 6483                   MOV         R8,R4
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 17-Mar-2023 12:51:29  PAGE   10
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+      pine-ini.c   215                PineIni_StringTrim(key);
+    00000208 B243                   BSR         _PineIni_StringTrim
+    0000020A 64A3                   MOV         R10,R4
+      pine-ini.c   216                PineIni_StringRemoveQuotes(value);
+    0000020C B273                   BSR         _PineIni_StringRemoveQuotes
+    0000020E 6483                   MOV         R8,R4
+      pine-ini.c   217    
+      pine-ini.c   218                // Error: empty key
+      pine-ini.c   219                if (strlen(key) <= 0)
+    00000210 D231                   MOV.L       L653+6,R2  ; _strlen
+    00000212 420B                   JSR         @R2
+    00000214 64A3                   MOV         R10,R4
+    00000216 E300                   MOV         #0,R3
+    00000218 3036                   CMP/HI      R3,R0
+    0000021A 8904                   BT          L568
+      pine-ini.c   220                {
+      pine-ini.c   221                    PARSER_RETURN_ERROR(PINE_INI_ERRCODE_EMPTY_KEY);
+    0000021C 51C2                   MOV.L       @(8,R12),R1
+    0000021E E402                   MOV         #2,R4
+    00000220 1D11                   MOV.L       R1,@(4,R13)
+    00000222 A01E                   BRA         L513
+    00000224 2D42                   MOV.L       R4,@R13
+    00000226              L568:                             
+      pine-ini.c   222                }
+      pine-ini.c   223    
+      pine-ini.c   224                // Check if key already exist
+      pine-ini.c   225                param = PineIni_Section_Find(currentSection, key);
+    00000226 65A3                   MOV         R10,R5
+    00000228 B0A4                   BSR         _PineIni_Section_Find
+    0000022A 64F2                   MOV.L       @R15,R4
+    0000022C 6403                   MOV         R0,R4
+      pine-ini.c   226    
+      pine-ini.c   227                // Exist, update value
+      pine-ini.c   228                if (param)
+    0000022E 2448                   TST         R4,R4
+    00000230 8903                   BT          L569
+      pine-ini.c   229                {
+      pine-ini.c   230                    PineIni_Parameter_Assign(param, value);
+    00000232 B116                   BSR         _PineIni_Parameter_Assign
+    00000234 6583                   MOV         R8,R5
+    00000236 A020                   BRA         L558
+    00000238 0009                   NOP
+    0000023A              L569:                             
+      pine-ini.c   231                }
+      pine-ini.c   232                // Not exist, append to current section
+      pine-ini.c   233                else
+      pine-ini.c   234                {
+      pine-ini.c   235                    // Check if exceed
+      pine-ini.c   236                    if (currentSection->numParam >= PINE_INI_MAX_NUM_PARAMETERS)
+    0000023A E219                   MOV         #25,R2
+    0000023C 63F2                   MOV.L       @R15,R3
+    0000023E 5131                   MOV.L       @(4,R3),R1
+    00000240 3123                   CMP/GE      R2,R1
+    00000242 8B04                   BF          L571
+      pine-ini.c   237                    {
+      pine-ini.c   238                        PARSER_RETURN_ERROR(PINE_INI_ERRCODE_PARAMS_EXCEED);
+    00000244 50C2                   MOV.L       @(8,R12),R0
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 17-Mar-2023 12:51:29  PAGE   11
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+    00000246 E404                   MOV         #4,R4
+    00000248 1D01                   MOV.L       R0,@(4,R13)
+    0000024A              L646:                             
+    0000024A A00A                   BRA         L513
+    0000024C 2D42                   MOV.L       R4,@R13
+    0000024E              L571:                             
+      pine-ini.c   239                    }
+      pine-ini.c   240                    PineIni_Section_Append(currentSection, key, value);
+    0000024E 6683                   MOV         R8,R6
+    00000250 65A3                   MOV         R10,R5
+    00000252 B0B3                   BSR         _PineIni_Section_Append
+    00000254 64F2                   MOV.L       @R15,R4
+      pine-ini.c   241                }
+      pine-ini.c   242    
+      pine-ini.c   243                continue;
+    00000256 A010                   BRA         L558
+    00000258 0009                   NOP
+    0000025A              L567:                             
+      pine-ini.c   244            }
+      pine-ini.c   245            // Illegal Pattern!
+      pine-ini.c   246            else
+      pine-ini.c   247            {
+      pine-ini.c   248                PARSER_RETURN_ERROR(PINE_INI_ERRCODE_ILLEGAL_PATTERN);
+    0000025A E401                   MOV         #1,R4
+    0000025C 52C2                   MOV.L       @(8,R12),R2
+    0000025E 1D21                   MOV.L       R2,@(4,R13)
+    00000260 2D42                   MOV.L       R4,@R13
+    00000262              L513:
+    00000262 60D3                   MOV         R13,R0
+    00000264 D31D                   MOV.L       L653+10,R3 ; __slow_strcpy
+    00000266 9135                   MOV.W       L653+2,R1  ; H'013C
+    00000268 31FC                   ADD         R15,R1
+    0000026A 430B                   JSR         @R3
+    0000026C 7008                   ADD         #8,R0
+    0000026E BED8                   BSR         __$PineIni_Parser_Destroy
+    00000270 64C3                   MOV         R12,R4
+    00000272 B050                   BSR         _PineIni_Destroy
+    00000274 64B3                   MOV         R11,R4
+    00000276 A008                   BRA         L565
+    00000278 E000                   MOV         #0,R0
+    0000027A              L558:                             
+      pine-ini.c   249            }
+      pine-ini.c   250    
+      pine-ini.c   251        } while (getsRetCode != PARSER_ACTION_END);
+    0000027A 52F2                   MOV.L       @(8,R15),R2
+    0000027C 2228                   TST         R2,R2
+    0000027E 8901                   BT          L654
+    00000280 AF5E                   BRA         L556
+    00000282 0009                   NOP
+    00000284              L654:                             
+      pine-ini.c   252    
+      pine-ini.c   253        PineIni_Parser_Destroy(parser);
+    00000284 BECD                   BSR         __$PineIni_Parser_Destroy
+    00000286 64C3                   MOV         R12,R4
+      pine-ini.c   254    
+      pine-ini.c   255        return iniResult;
+    00000288 60B3                   MOV         R11,R0
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 17-Mar-2023 12:51:29  PAGE   12
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+      pine-ini.c   256    }
+    0000028A              L565:                             
+    0000028A 9124                   MOV.W       L653+4,R1  ; H'01D4
+    0000028C 3F1C                   ADD         R1,R15
+    0000028E 4F26                   LDS.L       @R15+,PR
+    00000290 68F6                   MOV.L       @R15+,R8
+    00000292 69F6                   MOV.L       @R15+,R9
+    00000294 6AF6                   MOV.L       @R15+,R10
+    00000296 6BF6                   MOV.L       @R15+,R11
+    00000298 6CF6                   MOV.L       @R15+,R12
+    0000029A 6DF6                   MOV.L       @R15+,R13
+    0000029C 000B                   RTS
+    0000029E 6EF6                   MOV.L       @R15+,R14
+      pine-ini.c   257    
+      pine-ini.c   258    PineIniSection *PineIni_Find(const PineIniFile *file, const char *sectionName)
+    000002A0              _PineIni_Find:                   ; function: PineIni_Find
+                                                           ; frame size=20
+                                                           ; used runtime library name:
+                                                           ; __slow_strcmp1
+    000002A0 2FE6                   MOV.L       R14,@-R15
+    000002A2 2FD6                   MOV.L       R13,@-R15
+    000002A4 2FC6                   MOV.L       R12,@-R15
+    000002A6 6C43                   MOV         R4,R12
+    000002A8 4F22                   STS.L       PR,@-R15
+      pine-ini.c   259    {
+      pine-ini.c   260        if (file)
+    000002AA 2CC8                   TST         R12,R12
+    000002AC 7FFC                   ADD         #-4,R15
+    000002AE 8D1D                   BT/S        L573
+    000002B0 2F52                   MOV.L       R5,@R15
+      pine-ini.c   261        {
+      pine-ini.c   262            int i;
+      pine-ini.c   263            for (i = 0; i < file->numSection; ++i)
+    000002B2 A018                   BRA         L574
+    000002B4 EE00                   MOV         #0,R14
+    000002B6              L575:                             
+      pine-ini.c   264            {
+      pine-ini.c   265                PineIniSection *section = file->sections[i];
+    000002B6 6DE3                   MOV         R14,R13
+    000002B8 4D08                   SHLL2       R13
+    000002BA 63C3                   MOV         R12,R3
+    000002BC 7304                   ADD         #4,R3
+    000002BE 3D3C                   ADD         R3,R13
+    000002C0 6DD2                   MOV.L       @R13,R13
+      pine-ini.c   266                if (PineIni_StringEquals(sectionName, section->name))
+    000002C2 65D2                   MOV.L       @R13,R5
+    000002C4 D306                   MOV.L       L653+14,R3 ; __slow_strcmp1
+    000002C6 430B                   JSR         @R3
+    000002C8 64F2                   MOV.L       @R15,R4
+    000002CA 2008                   TST         R0,R0
+    000002CC 8B0A                   BF          L576
+      pine-ini.c   267                {
+      pine-ini.c   268                    return section;
+    000002CE A00E                   BRA         L577
+    000002D0 60D3                   MOV         R13,R0
+    000002D2              L653:                             
+    000002D2 00A4                   .DATA.W     H'00A4
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 17-Mar-2023 12:51:29  PAGE   13
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+    000002D4 013C                   .DATA.W     H'013C
+    000002D6 01D4                   .DATA.W     H'01D4
+    000002D8 <00000000>             .DATA.L     _strlen
+    000002DC <00000000>             .DATA.L     __slow_strcpy
+    000002E0 <00000000>             .DATA.L     __slow_strcmp1
+    000002E4              L576:                             
+    000002E4 7E01                   ADD         #1,R14
+    000002E6              L574:                             
+    000002E6 63C2                   MOV.L       @R12,R3
+    000002E8 3E33                   CMP/GE      R3,R14
+    000002EA 8BE4                   BF          L575
+    000002EC              L573:                             
+      pine-ini.c   269                }
+      pine-ini.c   270            }
+      pine-ini.c   271        }
+      pine-ini.c   272        return NULL;
+    000002EC E000                   MOV         #0,R0
+      pine-ini.c   273    }
+    000002EE              L577:                             
+    000002EE 7F04                   ADD         #4,R15
+    000002F0 4F26                   LDS.L       @R15+,PR
+    000002F2 6CF6                   MOV.L       @R15+,R12
+    000002F4 6DF6                   MOV.L       @R15+,R13
+    000002F6 000B                   RTS
+    000002F8 6EF6                   MOV.L       @R15+,R14
+      pine-ini.c   274    
+      pine-ini.c   275    PineIniFile *PineIni_Append(PineIniFile *file, PineIniSection *section)
+    000002FA              _PineIni_Append:                 ; function: PineIni_Append
+                                                           ; frame size=0
+      pine-ini.c   276    {
+      pine-ini.c   277        if (file)
+    000002FA 2448                   TST         R4,R4
+    000002FC 8D09                   BT/S        L578
+      pine-ini.c   278        {
+      pine-ini.c   279            file->sections[file->numSection++] = section;
+      pine-ini.c   280        }
+      pine-ini.c   281        return file;
+    000002FE 6043                   MOV         R4,R0
+    00000300 6242                   MOV.L       @R4,R2
+    00000302 6343                   MOV         R4,R3
+    00000304 7201                   ADD         #1,R2
+    00000306 7304                   ADD         #4,R3
+    00000308 2422                   MOV.L       R2,@R4
+    0000030A 72FF                   ADD         #-1,R2
+    0000030C 4208                   SHLL2       R2
+    0000030E 323C                   ADD         R3,R2
+    00000310 2252                   MOV.L       R5,@R2
+    00000312              L578:                             
+      pine-ini.c   282    }
+    00000312 000B                   RTS
+    00000314 0009                   NOP
+      pine-ini.c   283    
+      pine-ini.c   284    void PineIni_Destroy(PineIniFile *file)
+    00000316              _PineIni_Destroy:                ; function: PineIni_Destroy
+                                                           ; frame size=12
+    00000316 2FE6                   MOV.L       R14,@-R15
+    00000318 2FD6                   MOV.L       R13,@-R15
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 17-Mar-2023 12:51:29  PAGE   14
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+    0000031A 6D43                   MOV         R4,R13
+    0000031C 4F22                   STS.L       PR,@-R15
+      pine-ini.c   285    {
+      pine-ini.c   286        if (file)
+    0000031E 2DD8                   TST         R13,R13
+    00000320 8912                   BT          L580
+      pine-ini.c   287        {
+      pine-ini.c   288            int i;
+      pine-ini.c   289    
+      pine-ini.c   290            // destroy sections in file
+      pine-ini.c   291            for (i = 0; i < file->numSection; ++i)
+    00000322 A008                   BRA         L581
+    00000324 EE00                   MOV         #0,R14
+    00000326              L582:                             
+      pine-ini.c   292            {
+      pine-ini.c   293                PineIni_Section_Destroy(file->sections[i]);
+    00000326 64E3                   MOV         R14,R4
+    00000328 4408                   SHLL2       R4
+    0000032A 63D3                   MOV         R13,R3
+    0000032C 7304                   ADD         #4,R3
+    0000032E 343C                   ADD         R3,R4
+    00000330 B060                   BSR         _PineIni_Section_Destroy
+    00000332 6442                   MOV.L       @R4,R4
+    00000334 7E01                   ADD         #1,R14
+    00000336              L581:                             
+    00000336 63D2                   MOV.L       @R13,R3
+    00000338 3E33                   CMP/GE      R3,R14
+    0000033A 8BF4                   BF          L582
+      pine-ini.c   294            }
+      pine-ini.c   295    
+      pine-ini.c   296            // free file self
+      pine-ini.c   297            free(file);
+    0000033C 4F26                   LDS.L       @R15+,PR
+    0000033E 64D3                   MOV         R13,R4
+    00000340 D37D                   MOV.L       L655,R3    ; _free
+    00000342 6DF6                   MOV.L       @R15+,R13
+    00000344 432B                   JMP         @R3
+    00000346 6EF6                   MOV.L       @R15+,R14
+    00000348              L580:                             
+      pine-ini.c   298        }
+      pine-ini.c   299    }
+    00000348 4F26                   LDS.L       @R15+,PR
+    0000034A 6DF6                   MOV.L       @R15+,R13
+    0000034C 000B                   RTS
+    0000034E 6EF6                   MOV.L       @R15+,R14
+      pine-ini.c   300    
+      pine-ini.c   301    // Section
+      pine-ini.c   302    
+      pine-ini.c   303    PineIniSection *PineIni_Section_New(const char *sectionName)
+    00000350              _PineIni_Section_New:            ; function: PineIni_Section_New
+                                                           ; frame size=12
+    00000350 2FE6                   MOV.L       R14,@-R15
+    00000352 4F22                   STS.L       PR,@-R15
+      pine-ini.c   304    {
+      pine-ini.c   305        PineIniSection *section = (PineIniSection *)malloc(sizeof(PineIniSection));
+    00000354 D379                   MOV.L       L655+4,R3  ; _malloc
+    00000356 7FFC                   ADD         #-4,R15
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 17-Mar-2023 12:51:29  PAGE   15
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+    00000358 2F42                   MOV.L       R4,@R15
+    0000035A 430B                   JSR         @R3
+    0000035C E46C                   MOV         #108,R4
+    0000035E 6E03                   MOV         R0,R14
+      pine-ini.c   306    
+      pine-ini.c   307        section->name = PineIni_StringDump(sectionName);
+    00000360 B184                   BSR         _PineIni_StringDump
+    00000362 64F2                   MOV.L       @R15,R4
+    00000364 2E02                   MOV.L       R0,@R14
+      pine-ini.c   308        section->numParam = 0;
+    00000366 E200                   MOV         #0,R2
+    00000368 1E21                   MOV.L       R2,@(4,R14)
+      pine-ini.c   309    
+      pine-ini.c   310        return section;
+    0000036A 60E3                   MOV         R14,R0
+      pine-ini.c   311    }
+    0000036C 7F04                   ADD         #4,R15
+    0000036E 4F26                   LDS.L       @R15+,PR
+    00000370 000B                   RTS
+    00000372 6EF6                   MOV.L       @R15+,R14
+      pine-ini.c   312    
+      pine-ini.c   313    PineIniParameter *PineIni_Section_Find(const PineIniSection *section, const char *key)
+    00000374              _PineIni_Section_Find:           ; function: PineIni_Section_Find
+                                                           ; frame size=20
+                                                           ; used runtime library name:
+                                                           ; __slow_strcmp1
+    00000374 2FE6                   MOV.L       R14,@-R15
+    00000376 2FD6                   MOV.L       R13,@-R15
+    00000378 2FC6                   MOV.L       R12,@-R15
+    0000037A 6C43                   MOV         R4,R12
+    0000037C 4F22                   STS.L       PR,@-R15
+      pine-ini.c   314    {
+      pine-ini.c   315        if (section)
+    0000037E 2CC8                   TST         R12,R12
+    00000380 7FFC                   ADD         #-4,R15
+    00000382 8D14                   BT/S        L584
+    00000384 2F52                   MOV.L       R5,@R15
+      pine-ini.c   316        {
+      pine-ini.c   317            int i;
+      pine-ini.c   318            for (i = 0; i < section->numParam; ++i)
+    00000386 A00F                   BRA         L585
+    00000388 EE00                   MOV         #0,R14
+    0000038A              L586:                             
+      pine-ini.c   319            {
+      pine-ini.c   320                PineIniParameter *param = section->params[i];
+    0000038A 6DE3                   MOV         R14,R13
+    0000038C 4D08                   SHLL2       R13
+    0000038E 63C3                   MOV         R12,R3
+    00000390 7308                   ADD         #8,R3
+    00000392 3D3C                   ADD         R3,R13
+    00000394 6DD2                   MOV.L       @R13,R13
+      pine-ini.c   321                if (PineIni_StringEquals(key, param->key))
+    00000396 65D2                   MOV.L       @R13,R5
+    00000398 D369                   MOV.L       L655+8,R3  ; __slow_strcmp1
+    0000039A 430B                   JSR         @R3
+    0000039C 64F2                   MOV.L       @R15,R4
+    0000039E 2008                   TST         R0,R0
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 17-Mar-2023 12:51:29  PAGE   16
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+    000003A0 8B01                   BF          L587
+      pine-ini.c   322                {
+      pine-ini.c   323                    return param;
+    000003A2 A005                   BRA         L588
+    000003A4 60D3                   MOV         R13,R0
+    000003A6              L587:                             
+    000003A6 7E01                   ADD         #1,R14
+    000003A8              L585:                             
+    000003A8 53C1                   MOV.L       @(4,R12),R3
+    000003AA 3E33                   CMP/GE      R3,R14
+    000003AC 8BED                   BF          L586
+    000003AE              L584:                             
+      pine-ini.c   324                }
+      pine-ini.c   325            }
+      pine-ini.c   326        }
+      pine-ini.c   327        return NULL;
+    000003AE E000                   MOV         #0,R0
+      pine-ini.c   328    }
+    000003B0              L588:                             
+    000003B0 7F04                   ADD         #4,R15
+    000003B2 4F26                   LDS.L       @R15+,PR
+    000003B4 6CF6                   MOV.L       @R15+,R12
+    000003B6 6DF6                   MOV.L       @R15+,R13
+    000003B8 000B                   RTS
+    000003BA 6EF6                   MOV.L       @R15+,R14
+      pine-ini.c   329    
+      pine-ini.c   330    PineIniSection *PineIni_Section_Append(PineIniSection *section, const char *key, const char *value)
+    000003BC              _PineIni_Section_Append:         ; function: PineIni_Section_Append
+                                                           ; frame size=20
+    000003BC 2FE6                   MOV.L       R14,@-R15
+    000003BE 6E43                   MOV         R4,R14
+    000003C0 2F86                   MOV.L       R8,@-R15
+      pine-ini.c   331    {
+      pine-ini.c   332        if (section)
+    000003C2 2EE8                   TST         R14,R14
+    000003C4 4F22                   STS.L       PR,@-R15
+    000003C6 7FF8                   ADD         #-8,R15
+    000003C8 2F52                   MOV.L       R5,@R15
+    000003CA 8D0D                   BT/S        L589
+    000003CC 1F61                   MOV.L       R6,@(4,R15)
+      pine-ini.c   333        {
+      pine-ini.c   334            section->params[section->numParam++] = PineIni_Parameter_New(key, value);
+    000003CE 63E3                   MOV         R14,R3
+    000003D0 52E1                   MOV.L       @(4,R14),R2
+    000003D2 7308                   ADD         #8,R3
+    000003D4 7201                   ADD         #1,R2
+    000003D6 1E21                   MOV.L       R2,@(4,R14)
+    000003D8 55F1                   MOV.L       @(4,R15),R5
+    000003DA 72FF                   ADD         #-1,R2
+    000003DC 4208                   SHLL2       R2
+    000003DE 323C                   ADD         R3,R2
+    000003E0 6823                   MOV         R2,R8
+    000003E2 B02A                   BSR         _PineIni_Parameter_New
+    000003E4 64F2                   MOV.L       @R15,R4
+    000003E6 2802                   MOV.L       R0,@R8
+    000003E8              L589:                             
+      pine-ini.c   335        }
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 17-Mar-2023 12:51:29  PAGE   17
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+      pine-ini.c   336        return section;
+    000003E8 60E3                   MOV         R14,R0
+      pine-ini.c   337    }
+    000003EA 7F08                   ADD         #8,R15
+    000003EC 4F26                   LDS.L       @R15+,PR
+    000003EE 68F6                   MOV.L       @R15+,R8
+    000003F0 000B                   RTS
+    000003F2 6EF6                   MOV.L       @R15+,R14
+      pine-ini.c   338    
+      pine-ini.c   339    void PineIni_Section_Destroy(PineIniSection *section)
+    000003F4              _PineIni_Section_Destroy:        ; function: PineIni_Section_Destroy
+                                                           ; frame size=12
+    000003F4 2FE6                   MOV.L       R14,@-R15
+    000003F6 6E43                   MOV         R4,R14
+    000003F8 2FD6                   MOV.L       R13,@-R15
+      pine-ini.c   340    {
+      pine-ini.c   341        if (section)
+    000003FA 2EE8                   TST         R14,R14
+    000003FC 4F22                   STS.L       PR,@-R15
+    000003FE 8918                   BT          L591
+      pine-ini.c   342        {
+      pine-ini.c   343            int i;
+      pine-ini.c   344    
+      pine-ini.c   345            // free section name
+      pine-ini.c   346            if (section->name)
+    00000400 62E2                   MOV.L       @R14,R2
+    00000402 2228                   TST         R2,R2
+    00000404 8902                   BT          L592
+      pine-ini.c   347            {
+      pine-ini.c   348                free(section->name);
+    00000406 D34C                   MOV.L       L655,R3    ; _free
+    00000408 430B                   JSR         @R3
+    0000040A 64E2                   MOV.L       @R14,R4
+    0000040C              L592:                             
+      pine-ini.c   349            }
+      pine-ini.c   350            // destroy parameters in section
+      pine-ini.c   351            for (i = 0; i < section->numParam; ++i)
+    0000040C A008                   BRA         L593
+    0000040E ED00                   MOV         #0,R13
+    00000410              L594:                             
+      pine-ini.c   352            {
+      pine-ini.c   353                PineIni_Parameter_Destroy(section->params[i]);
+    00000410 64D3                   MOV         R13,R4
+    00000412 4408                   SHLL2       R4
+    00000414 63E3                   MOV         R14,R3
+    00000416 7308                   ADD         #8,R3
+    00000418 343C                   ADD         R3,R4
+    0000041A B037                   BSR         _PineIni_Parameter_Destroy
+    0000041C 6442                   MOV.L       @R4,R4
+    0000041E 7D01                   ADD         #1,R13
+    00000420              L593:                             
+    00000420 53E1                   MOV.L       @(4,R14),R3
+    00000422 3D33                   CMP/GE      R3,R13
+    00000424 8BF4                   BF          L594
+      pine-ini.c   354            }
+      pine-ini.c   355            // free section self
+      pine-ini.c   356            free(section);
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 17-Mar-2023 12:51:29  PAGE   18
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+    00000426 64E3                   MOV         R14,R4
+    00000428 4F26                   LDS.L       @R15+,PR
+    0000042A 6DF6                   MOV.L       @R15+,R13
+    0000042C D342                   MOV.L       L655,R3    ; _free
+    0000042E 432B                   JMP         @R3
+    00000430 6EF6                   MOV.L       @R15+,R14
+    00000432              L591:                             
+      pine-ini.c   357        }
+      pine-ini.c   358    }
+    00000432 4F26                   LDS.L       @R15+,PR
+    00000434 6DF6                   MOV.L       @R15+,R13
+    00000436 000B                   RTS
+    00000438 6EF6                   MOV.L       @R15+,R14
+      pine-ini.c   359    
+      pine-ini.c   360    // Parameter
+      pine-ini.c   361    
+      pine-ini.c   362    PineIniParameter *PineIni_Parameter_New(const char *key, const char *value)
+    0000043A              _PineIni_Parameter_New:          ; function: PineIni_Parameter_New
+                                                           ; frame size=16
+    0000043A 2FE6                   MOV.L       R14,@-R15
+    0000043C 4F22                   STS.L       PR,@-R15
+    0000043E 7FF8                   ADD         #-8,R15
+      pine-ini.c   363    {
+      pine-ini.c   364        PineIniParameter *param;
+      pine-ini.c   365    
+      pine-ini.c   366        param = (PineIniParameter *)malloc(sizeof(PineIniParameter));
+    00000440 D33E                   MOV.L       L655+4,R3  ; _malloc
+    00000442 1F41                   MOV.L       R4,@(4,R15)
+    00000444 2F52                   MOV.L       R5,@R15
+    00000446 430B                   JSR         @R3
+    00000448 E408                   MOV         #8,R4
+    0000044A 6E03                   MOV         R0,R14
+      pine-ini.c   367        param->key = PineIni_StringDump(key);
+    0000044C B10E                   BSR         _PineIni_StringDump
+    0000044E 54F1                   MOV.L       @(4,R15),R4
+    00000450 2E02                   MOV.L       R0,@R14
+      pine-ini.c   368        param->value = PineIni_StringDump(value);
+    00000452 B10B                   BSR         _PineIni_StringDump
+    00000454 64F2                   MOV.L       @R15,R4
+    00000456 1E01                   MOV.L       R0,@(4,R14)
+      pine-ini.c   369    
+      pine-ini.c   370        return param;
+    00000458 60E3                   MOV         R14,R0
+      pine-ini.c   371    }
+    0000045A 7F08                   ADD         #8,R15
+    0000045C 4F26                   LDS.L       @R15+,PR
+    0000045E 000B                   RTS
+    00000460 6EF6                   MOV.L       @R15+,R14
+      pine-ini.c   372    
+      pine-ini.c   373    PineIniParameter *PineIni_Parameter_Assign(PineIniParameter *param, const char *value)
+    00000462              _PineIni_Parameter_Assign:       ; function: PineIni_Parameter_Assign
+                                                           ; frame size=12
+    00000462 2FE6                   MOV.L       R14,@-R15
+    00000464 4F22                   STS.L       PR,@-R15
+    00000466 6E43                   MOV         R4,R14
+    00000468 7FFC                   ADD         #-4,R15
+      pine-ini.c   374    {
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 17-Mar-2023 12:51:29  PAGE   19
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+      pine-ini.c   375        if (param)
+    0000046A 2EE8                   TST         R14,R14
+    0000046C 8D09                   BT/S        L596
+    0000046E 2F52                   MOV.L       R5,@R15
+      pine-ini.c   376        {
+      pine-ini.c   377            if (param->value)
+    00000470 52E1                   MOV.L       @(4,R14),R2
+    00000472 2228                   TST         R2,R2
+    00000474 8902                   BT          L597
+      pine-ini.c   378            {
+      pine-ini.c   379                free(param->value);
+    00000476 D330                   MOV.L       L655,R3    ; _free
+    00000478 430B                   JSR         @R3
+    0000047A 54E1                   MOV.L       @(4,R14),R4
+    0000047C              L597:                             
+      pine-ini.c   380            }
+      pine-ini.c   381            param->value = PineIni_StringDump(value);
+    0000047C B0F6                   BSR         _PineIni_StringDump
+    0000047E 64F2                   MOV.L       @R15,R4
+    00000480 1E01                   MOV.L       R0,@(4,R14)
+    00000482              L596:                             
+      pine-ini.c   382        }
+      pine-ini.c   383        return param;
+    00000482 60E3                   MOV         R14,R0
+      pine-ini.c   384    }
+    00000484 7F04                   ADD         #4,R15
+    00000486 4F26                   LDS.L       @R15+,PR
+    00000488 000B                   RTS
+    0000048A 6EF6                   MOV.L       @R15+,R14
+      pine-ini.c   385    
+      pine-ini.c   386    void PineIni_Parameter_Destroy(PineIniParameter *param)
+    0000048C              _PineIni_Parameter_Destroy:      ; function: PineIni_Parameter_Destroy
+                                                           ; frame size=12
+    0000048C 2FE6                   MOV.L       R14,@-R15
+    0000048E 6E43                   MOV         R4,R14
+    00000490 2FD6                   MOV.L       R13,@-R15
+      pine-ini.c   387    {
+      pine-ini.c   388        if (param)
+    00000492 2EE8                   TST         R14,R14
+    00000494 4F22                   STS.L       PR,@-R15
+    00000496 890C                   BT          L599
+      pine-ini.c   389        {
+      pine-ini.c   390            if (param->key)
+    00000498 DD27                   MOV.L       L655,R13   ; _free
+    0000049A 62E2                   MOV.L       @R14,R2
+    0000049C 2228                   TST         R2,R2
+    0000049E 8901                   BT          L600
+      pine-ini.c   391            {
+      pine-ini.c   392                free(param->key);
+    000004A0 4D0B                   JSR         @R13
+    000004A2 64E2                   MOV.L       @R14,R4
+    000004A4              L600:                             
+      pine-ini.c   393            }
+      pine-ini.c   394            if (param->value)
+    000004A4 53E1                   MOV.L       @(4,R14),R3
+    000004A6 2338                   TST         R3,R3
+    000004A8 8901                   BT          L601
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 17-Mar-2023 12:51:29  PAGE   20
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+      pine-ini.c   395            {
+      pine-ini.c   396                free(param->value);
+    000004AA 4D0B                   JSR         @R13
+    000004AC 54E1                   MOV.L       @(4,R14),R4
+    000004AE              L601:                             
+      pine-ini.c   397            }
+      pine-ini.c   398            free(param);
+    000004AE 4D0B                   JSR         @R13
+    000004B0 64E3                   MOV         R14,R4
+    000004B2              L599:                             
+      pine-ini.c   399        }
+      pine-ini.c   400    }
+    000004B2 4F26                   LDS.L       @R15+,PR
+    000004B4 6DF6                   MOV.L       @R15+,R13
+    000004B6 000B                   RTS
+    000004B8 6EF6                   MOV.L       @R15+,R14
+      pine-ini.c   401    
+      pine-ini.c   402    // Utils functions
+      pine-ini.c   403    
+      pine-ini.c   404    const char *PineIni_Section_GetString(const PineIniSection *section, const char *key, const char *defaultV
+                         +alue)
+    000004BA              _PineIni_Section_GetString:      ; function: PineIni_Section_GetString
+                                                           ; frame size=8
+    000004BA 4F22                   STS.L       PR,@-R15
+    000004BC 7FFC                   ADD         #-4,R15
+      pine-ini.c   405    {
+      pine-ini.c   406        const PineIniParameter *param = PineIni_Section_Find(section, key);
+    000004BE BF59                   BSR         _PineIni_Section_Find
+    000004C0 2F62                   MOV.L       R6,@R15
+    000004C2 6403                   MOV         R0,R4
+      pine-ini.c   407    
+      pine-ini.c   408        // key not found or value is null
+      pine-ini.c   409        if (!param || !param->value)
+    000004C4 2448                   TST         R4,R4
+    000004C6 8902                   BT          L603
+    000004C8 5341                   MOV.L       @(4,R4),R3
+    000004CA 2338                   TST         R3,R3
+    000004CC 8B04                   BF          L602
+    000004CE              L603:                             
+      pine-ini.c   410        {
+      pine-ini.c   411            return defaultValue;
+    000004CE 60F2                   MOV.L       @R15,R0
+    000004D0 7F04                   ADD         #4,R15
+    000004D2 4F26                   LDS.L       @R15+,PR
+    000004D4 000B                   RTS
+    000004D6 0009                   NOP
+    000004D8              L602:                             
+      pine-ini.c   412        }
+      pine-ini.c   413    
+      pine-ini.c   414        return param->value;
+    000004D8 5041                   MOV.L       @(4,R4),R0
+      pine-ini.c   415    }
+    000004DA              L604:                             
+    000004DA 7F04                   ADD         #4,R15
+    000004DC 4F26                   LDS.L       @R15+,PR
+    000004DE 000B                   RTS
+    000004E0 0009                   NOP
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 17-Mar-2023 12:51:29  PAGE   21
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+      pine-ini.c   416    
+      pine-ini.c   417    const char *PineIni_GetString(const PineIniFile *file, const char *sectionName, const char *key, const cha
+                         +r *defaultValue)
+    000004E2              _PineIni_GetString:              ; function: PineIni_GetString
+                                                           ; frame size=12
+    000004E2 4F22                   STS.L       PR,@-R15
+    000004E4 7FF8                   ADD         #-8,R15
+    000004E6 1F61                   MOV.L       R6,@(4,R15)
+      pine-ini.c   418    {
+      pine-ini.c   419        const PineIniSection *section = PineIni_Find(file, sectionName);
+    000004E8 BEDA                   BSR         _PineIni_Find
+    000004EA 2F72                   MOV.L       R7,@R15
+    000004EC 6403                   MOV         R0,R4
+      pine-ini.c   420    
+      pine-ini.c   421        // sectionName not found
+      pine-ini.c   422        if (!section)
+    000004EE 2448                   TST         R4,R4
+    000004F0 8B04                   BF          L605
+      pine-ini.c   423        {
+      pine-ini.c   424            return defaultValue;
+    000004F2 60F2                   MOV.L       @R15,R0
+    000004F4 7F08                   ADD         #8,R15
+    000004F6 4F26                   LDS.L       @R15+,PR
+    000004F8 000B                   RTS
+    000004FA 0009                   NOP
+    000004FC              L605:                             
+      pine-ini.c   425        }
+      pine-ini.c   426    
+      pine-ini.c   427        return PineIni_Section_GetString(section, key, defaultValue);
+    000004FC 66F2                   MOV.L       @R15,R6
+    000004FE 55F1                   MOV.L       @(4,R15),R5
+    00000500 7F08                   ADD         #8,R15
+    00000502 AFDA                   BRA         _PineIni_Section_GetString
+    00000504 4F26                   LDS.L       @R15+,PR
+    00000506              L606:                             
+      pine-ini.c   428    }
+    00000506 7F08                   ADD         #8,R15
+    00000508 4F26                   LDS.L       @R15+,PR
+    0000050A 000B                   RTS
+    0000050C 0009                   NOP
+      pine-ini.c   429    
+      pine-ini.c   430    int PineIni_Section_GetInt(const PineIniSection *section, const char *key, int defaultValue)
+    0000050E              _PineIni_Section_GetInt:         ; function: PineIni_Section_GetInt
+                                                           ; frame size=8
+    0000050E 4F22                   STS.L       PR,@-R15
+    00000510 7FFC                   ADD         #-4,R15
+    00000512 2F62                   MOV.L       R6,@R15
+      pine-ini.c   431    {
+      pine-ini.c   432        const char *szIntVal = PineIni_Section_GetString(section, key, NULL);
+    00000514 BFD1                   BSR         _PineIni_Section_GetString
+    00000516 E600                   MOV         #0,R6
+    00000518 6403                   MOV         R0,R4
+      pine-ini.c   433    
+      pine-ini.c   434        if (szIntVal == NULL)
+    0000051A 2448                   TST         R4,R4
+    0000051C 8B04                   BF          L607
+      pine-ini.c   435        {
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 17-Mar-2023 12:51:29  PAGE   22
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+      pine-ini.c   436            return defaultValue;
+    0000051E 60F2                   MOV.L       @R15,R0
+    00000520 7F04                   ADD         #4,R15
+    00000522 4F26                   LDS.L       @R15+,PR
+    00000524 000B                   RTS
+    00000526 0009                   NOP
+    00000528              L607:                             
+      pine-ini.c   437        }
+      pine-ini.c   438        else
+      pine-ini.c   439        {
+      pine-ini.c   440            return atol(szIntVal);
+    00000528 D206                   MOV.L       L655+12,R2 ; _atol
+    0000052A 7F04                   ADD         #4,R15
+    0000052C 422B                   JMP         @R2
+    0000052E 4F26                   LDS.L       @R15+,PR
+    00000530              L608:                             
+      pine-ini.c   441        }
+      pine-ini.c   442    }
+    00000530 7F04                   ADD         #4,R15
+    00000532 4F26                   LDS.L       @R15+,PR
+    00000534 000B                   RTS
+    00000536 0009                   NOP
+    00000538              L655:                             
+    00000538 <00000000>             .DATA.L     _free
+    0000053C <00000000>             .DATA.L     _malloc
+    00000540 <00000000>             .DATA.L     __slow_strcmp1
+    00000544 <00000000>             .DATA.L     _atol
+      pine-ini.c   443    
+      pine-ini.c   444    int PineIni_GetInt(const PineIniFile *file, const char *sectionName, const char *key, int defaultValue)
+    00000548              _PineIni_GetInt:                 ; function: PineIni_GetInt
+                                                           ; frame size=8
+    00000548 4F22                   STS.L       PR,@-R15
+    0000054A 7FFC                   ADD         #-4,R15
+    0000054C 2F72                   MOV.L       R7,@R15
+      pine-ini.c   445    {
+      pine-ini.c   446        const char *szIntVal = PineIni_GetString(file, sectionName, key, NULL);
+    0000054E BFC8                   BSR         _PineIni_GetString
+    00000550 E700                   MOV         #0,R7
+    00000552 6403                   MOV         R0,R4
+      pine-ini.c   447    
+      pine-ini.c   448        if (szIntVal == NULL)
+    00000554 2448                   TST         R4,R4
+    00000556 8B04                   BF          L610
+      pine-ini.c   449        {
+      pine-ini.c   450            return defaultValue;
+    00000558 60F2                   MOV.L       @R15,R0
+    0000055A 7F04                   ADD         #4,R15
+    0000055C 4F26                   LDS.L       @R15+,PR
+    0000055E 000B                   RTS
+    00000560 0009                   NOP
+    00000562              L610:                             
+      pine-ini.c   451        }
+      pine-ini.c   452        else
+      pine-ini.c   453        {
+      pine-ini.c   454            return atol(szIntVal);
+    00000562 7F04                   ADD         #4,R15
+    00000564 D27E                   MOV.L       L656,R2    ; _atol
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 17-Mar-2023 12:51:29  PAGE   23
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+    00000566 422B                   JMP         @R2
+    00000568 4F26                   LDS.L       @R15+,PR
+    0000056A              L611:                             
+      pine-ini.c   455        }
+      pine-ini.c   456    }
+    0000056A 7F04                   ADD         #4,R15
+    0000056C 4F26                   LDS.L       @R15+,PR
+    0000056E 000B                   RTS
+    00000570 0009                   NOP
+      pine-ini.c   457    
+      pine-ini.c   458    double PineIni_Section_GetFloat(const PineIniSection *section, const char *key, double defaultValue)
+    00000572              _PineIni_Section_GetFloat:       ; function: PineIni_Section_GetFloat
+                                                           ; frame size=8
+    00000572 4F22                   STS.L       PR,@-R15
+      pine-ini.c   459    {
+      pine-ini.c   460        const char *szIntVal = PineIni_Section_GetString(section, key, NULL);
+    00000574 BFA1                   BSR         _PineIni_Section_GetString
+    00000576 E600                   MOV         #0,R6
+    00000578 6403                   MOV         R0,R4
+      pine-ini.c   461        if (szIntVal == NULL)
+    0000057A 2448                   TST         R4,R4
+    0000057C 8B08                   BF          L613
+      pine-ini.c   462        {
+      pine-ini.c   463            return defaultValue;
+    0000057E 62F3                   MOV         R15,R2
+    00000580 51F1                   MOV.L       @(4,R15),R1
+    00000582 7208                   ADD         #8,R2
+    00000584 6022                   MOV.L       @R2,R0
+    00000586 2102                   MOV.L       R0,@R1
+    00000588 5021                   MOV.L       @(4,R2),R0
+    0000058A 4F26                   LDS.L       @R15+,PR
+    0000058C 000B                   RTS
+    0000058E 1101                   MOV.L       R0,@(4,R1)
+    00000590              L613:                             
+      pine-ini.c   464        }
+      pine-ini.c   465        else
+      pine-ini.c   466        {
+      pine-ini.c   467            return atof(szIntVal);
+    00000590 53F1                   MOV.L       @(4,R15),R3
+    00000592 D274                   MOV.L       L656+4,R2  ; _atof
+    00000594 420B                   JSR         @R2
+    00000596 2F36                   MOV.L       R3,@-R15
+    00000598 7F04                   ADD         #4,R15
+      pine-ini.c   468        }
+      pine-ini.c   469    }
+    0000059A              L614:                             
+    0000059A 4F26                   LDS.L       @R15+,PR
+    0000059C 000B                   RTS
+    0000059E 0009                   NOP
+      pine-ini.c   470    double PineIni_GetFloat(const PineIniFile *file, const char *sectionName, const char *key, double defaultV
+                         +alue)
+    000005A0              _PineIni_GetFloat:               ; function: PineIni_GetFloat
+                                                           ; frame size=8
+    000005A0 4F22                   STS.L       PR,@-R15
+      pine-ini.c   471    {
+      pine-ini.c   472        const char *szIntVal = PineIni_GetString(file, sectionName, key, NULL);
+    000005A2 BF9E                   BSR         _PineIni_GetString
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 17-Mar-2023 12:51:29  PAGE   24
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+    000005A4 E700                   MOV         #0,R7
+    000005A6 6403                   MOV         R0,R4
+      pine-ini.c   473    
+      pine-ini.c   474        if (szIntVal == NULL)
+    000005A8 2448                   TST         R4,R4
+    000005AA 8B08                   BF          L616
+      pine-ini.c   475        {
+      pine-ini.c   476            return defaultValue;
+    000005AC 51F1                   MOV.L       @(4,R15),R1
+    000005AE 62F3                   MOV         R15,R2
+    000005B0 7208                   ADD         #8,R2
+    000005B2 6022                   MOV.L       @R2,R0
+    000005B4 2102                   MOV.L       R0,@R1
+    000005B6 5021                   MOV.L       @(4,R2),R0
+    000005B8 4F26                   LDS.L       @R15+,PR
+    000005BA 000B                   RTS
+    000005BC 1101                   MOV.L       R0,@(4,R1)
+    000005BE              L616:                             
+      pine-ini.c   477        }
+      pine-ini.c   478        else
+      pine-ini.c   479        {
+      pine-ini.c   480            return atof(szIntVal);
+    000005BE 53F1                   MOV.L       @(4,R15),R3
+    000005C0 D268                   MOV.L       L656+4,R2  ; _atof
+    000005C2 420B                   JSR         @R2
+    000005C4 2F36                   MOV.L       R3,@-R15
+    000005C6 7F04                   ADD         #4,R15
+      pine-ini.c   481        }
+      pine-ini.c   482    }
+    000005C8              L617:                             
+    000005C8 4F26                   LDS.L       @R15+,PR
+    000005CA 000B                   RTS
+    000005CC 0009                   NOP
+      pine-ini.c   483    
+      pine-ini.c   484    // String functions
+      pine-ini.c   485    
+      pine-ini.c   486    int PineIni_FindChar(const char *src, const char find)
+    000005CE              _PineIni_FindChar:               ; function: PineIni_FindChar
+                                                           ; frame size=0
+      pine-ini.c   487    {
+      pine-ini.c   488        int i;
+      pine-ini.c   489        for (i = 0; src[i]; ++i)
+    000005CE A006                   BRA         L619
+    000005D0 E600                   MOV         #0,R6
+    000005D2              L620:                             
+      pine-ini.c   490        {
+      pine-ini.c   491            if (src[i] == find)
+    000005D2 625E                   EXTS.B      R5,R2
+    000005D4 3320                   CMP/EQ      R2,R3
+    000005D6 8B01                   BF          L621
+      pine-ini.c   492            {
+      pine-ini.c   493                return i;
+    000005D8 000B                   RTS
+    000005DA 6063                   MOV         R6,R0
+    000005DC              L621:                             
+    000005DC 7601                   ADD         #1,R6
+    000005DE              L619:                             
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 17-Mar-2023 12:51:29  PAGE   25
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+    000005DE 6063                   MOV         R6,R0
+    000005E0 034C                   MOV.B       @(R0,R4),R3
+    000005E2 2338                   TST         R3,R3
+    000005E4 8BF5                   BF          L620
+      pine-ini.c   494            }
+      pine-ini.c   495        }
+      pine-ini.c   496        return -1;
+    000005E6 E0FF                   MOV         #-1,R0
+      pine-ini.c   497    }
+    000005E8              L622:                             
+    000005E8 000B                   RTS
+    000005EA 0009                   NOP
+      pine-ini.c   498    
+      pine-ini.c   499    char *PineIni_Substring(char *dest, const char *src, int left, int right)
+    000005EC              _PineIni_Substring:              ; function: PineIni_Substring
+                                                           ; frame size=4
+    000005EC 2FE6                   MOV.L       R14,@-R15
+      pine-ini.c   500    {
+      pine-ini.c   501        char *buf = dest;
+      pine-ini.c   502        int newLength = 0;
+    000005EE E100                   MOV         #0,R1
+    000005F0 6E43                   MOV         R4,R14
+      pine-ini.c   503        int i;
+      pine-ini.c   504    
+      pine-ini.c   505        for (i = left; i <= right; ++i)
+    000005F2 3677                   CMP/GT      R7,R6
+    000005F4 8D07                   BT/S        L623
+    000005F6 356C                   ADD         R6,R5
+    000005F8              L624:                             
+      pine-ini.c   506        {
+      pine-ini.c   507            buf[newLength++] = src[i];
+    000005F8 6354                   MOV.B       @R5+,R3
+    000005FA 7601                   ADD         #1,R6
+    000005FC 6013                   MOV         R1,R0
+    000005FE 7101                   ADD         #1,R1
+    00000600 3677                   CMP/GT      R7,R6
+    00000602 8FF9                   BF/S        L624
+    00000604 0E34                   MOV.B       R3,@(R0,R14)
+    00000606              L623:                             
+      pine-ini.c   508        }
+      pine-ini.c   509    
+      pine-ini.c   510        buf[newLength] = 0;
+    00000606 6013                   MOV         R1,R0
+    00000608 E300                   MOV         #0,R3
+    0000060A 0E34                   MOV.B       R3,@(R0,R14)
+      pine-ini.c   511    
+      pine-ini.c   512        return dest;
+    0000060C 6043                   MOV         R4,R0
+      pine-ini.c   513    }
+    0000060E 000B                   RTS
+    00000610 6EF6                   MOV.L       @R15+,R14
+      pine-ini.c   514    
+      pine-ini.c   515    char *PineIni_ToSubstring(char *src, int left, int right)
+    00000612              _PineIni_ToSubstring:            ; function: PineIni_ToSubstring
+                                                           ; frame size=20
+                                                           ; used runtime library name:
+                                                           ; __slow_strcpy
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 17-Mar-2023 12:51:29  PAGE   26
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+    00000612 2FE6                   MOV.L       R14,@-R15
+    00000614 2FD6                   MOV.L       R13,@-R15
+    00000616 6E43                   MOV         R4,R14
+      pine-ini.c   516    {
+      pine-ini.c   517        int length = strlen(src);
+    00000618 D353                   MOV.L       L656+8,R3  ; _strlen
+    0000061A 6D63                   MOV         R6,R13
+    0000061C 4F22                   STS.L       PR,@-R15
+    0000061E 7FF8                   ADD         #-8,R15
+    00000620 2F52                   MOV.L       R5,@R15
+    00000622 430B                   JSR         @R3
+    00000624 64E3                   MOV         R14,R4
+      pine-ini.c   518        char *buf = (char *)malloc(length + 1);
+    00000626 6403                   MOV         R0,R4
+    00000628 D350                   MOV.L       L656+12,R3 ; _malloc
+    0000062A 1F01                   MOV.L       R0,@(4,R15)
+    0000062C 430B                   JSR         @R3
+    0000062E 7401                   ADD         #1,R4
+      pine-ini.c   519        int newLength = 0;
+      pine-ini.c   520        int i;
+      pine-ini.c   521    
+      pine-ini.c   522        for (i = left; i <= right; ++i)
+    00000630 65F2                   MOV.L       @R15,R5
+    00000632 6403                   MOV         R0,R4
+    00000634 E600                   MOV         #0,R6
+    00000636 6753                   MOV         R5,R7
+    00000638 35D7                   CMP/GT      R13,R5
+    0000063A 8D07                   BT/S        L626
+    0000063C 37EC                   ADD         R14,R7
+    0000063E              L627:                             
+      pine-ini.c   523        {
+      pine-ini.c   524            buf[newLength++] = src[i];
+    0000063E 6063                   MOV         R6,R0
+    00000640 6374                   MOV.B       @R7+,R3
+    00000642 7501                   ADD         #1,R5
+    00000644 7601                   ADD         #1,R6
+    00000646 35D7                   CMP/GT      R13,R5
+    00000648 8FF9                   BF/S        L627
+    0000064A 0434                   MOV.B       R3,@(R0,R4)
+    0000064C              L626:                             
+      pine-ini.c   525        }
+      pine-ini.c   526    
+      pine-ini.c   527        buf[newLength] = 0;
+      pine-ini.c   528    
+      pine-ini.c   529        strcpy(src, buf);
+    0000064C D248                   MOV.L       L656+16,R2 ; __slow_strcpy
+    0000064E 6063                   MOV         R6,R0
+    00000650 E300                   MOV         #0,R3
+    00000652 6143                   MOV         R4,R1
+    00000654 0434                   MOV.B       R3,@(R0,R4)
+    00000656 420B                   JSR         @R2
+    00000658 60E3                   MOV         R14,R0
+      pine-ini.c   530    
+      pine-ini.c   531        free(buf);
+    0000065A D346                   MOV.L       L656+20,R3 ; _free
+    0000065C 430B                   JSR         @R3
+    0000065E 0009                   NOP
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 17-Mar-2023 12:51:29  PAGE   27
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+      pine-ini.c   532    
+      pine-ini.c   533        return src;
+    00000660 60E3                   MOV         R14,R0
+      pine-ini.c   534    }
+    00000662 7F08                   ADD         #8,R15
+    00000664 4F26                   LDS.L       @R15+,PR
+    00000666 6DF6                   MOV.L       @R15+,R13
+    00000668 000B                   RTS
+    0000066A 6EF6                   MOV.L       @R15+,R14
+      pine-ini.c   535    
+      pine-ini.c   536    char *PineIni_StringDump(const char *src)
+    0000066C              _PineIni_StringDump:             ; function: PineIni_StringDump
+                                                           ; frame size=12
+                                                           ; used runtime library name:
+                                                           ; __slow_strcpy
+    0000066C 4F22                   STS.L       PR,@-R15
+    0000066E 7FF8                   ADD         #-8,R15
+      pine-ini.c   537    {
+      pine-ini.c   538        int length = strlen(src);
+    00000670 D33D                   MOV.L       L656+8,R3  ; _strlen
+    00000672 430B                   JSR         @R3
+    00000674 2F42                   MOV.L       R4,@R15
+      pine-ini.c   539        char *dup = (char *)malloc(length + 1);
+    00000676 6403                   MOV         R0,R4
+    00000678 D33C                   MOV.L       L656+12,R3 ; _malloc
+    0000067A 1F01                   MOV.L       R0,@(4,R15)
+    0000067C 430B                   JSR         @R3
+    0000067E 7401                   ADD         #1,R4
+      pine-ini.c   540        strcpy(dup, src);
+    00000680 61F2                   MOV.L       @R15,R1
+    00000682 6403                   MOV         R0,R4
+    00000684 D23A                   MOV.L       L656+16,R2 ; __slow_strcpy
+    00000686 420B                   JSR         @R2
+    00000688 6043                   MOV         R4,R0
+      pine-ini.c   541        return dup;
+      pine-ini.c   542    }
+    0000068A 7F08                   ADD         #8,R15
+    0000068C 4F26                   LDS.L       @R15+,PR
+    0000068E 000B                   RTS
+    00000690 6043                   MOV         R4,R0
+      pine-ini.c   543    
+      pine-ini.c   544    char *PineIni_StringTrim(char *src)
+    00000692              _PineIni_StringTrim:             ; function: PineIni_StringTrim
+                                                           ; frame size=8
+    00000692 2FE6                   MOV.L       R14,@-R15
+    00000694 4F22                   STS.L       PR,@-R15
+      pine-ini.c   545    {
+      pine-ini.c   546        int length = strlen(src);
+    00000696 D334                   MOV.L       L656+8,R3  ; _strlen
+    00000698 430B                   JSR         @R3
+    0000069A 6E43                   MOV         R4,R14
+    0000069C 6603                   MOV         R0,R6
+      pine-ini.c   547        int left;
+      pine-ini.c   548        int right;
+      pine-ini.c   549        int newLength = 0;
+      pine-ini.c   550    
+      pine-ini.c   551        for (left = 0; left < length; ++left)
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 17-Mar-2023 12:51:29  PAGE   28
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+    0000069E 4615                   CMP/PL      R6
+    000006A0 8F11                   BF/S        L630
+    000006A2 E500                   MOV         #0,R5
+    000006A4              L631:                             
+      pine-ini.c   552        {
+      pine-ini.c   553            if (!isWhitespace(src[left]))
+    000006A4 6053                   MOV         R5,R0
+    000006A6 00EC                   MOV.B       @(R0,R14),R0
+    000006A8 8820                   CMP/EQ      #32,R0
+    000006AA 8D09                   BT/S        L632
+    000006AC 6403                   MOV         R0,R4
+    000006AE 6043                   MOV         R4,R0
+    000006B0 880D                   CMP/EQ      #13,R0
+    000006B2 8905                   BT          L632
+    000006B4 6043                   MOV         R4,R0
+    000006B6 880A                   CMP/EQ      #10,R0
+    000006B8 8902                   BT          L632
+    000006BA 6043                   MOV         R4,R0
+    000006BC 8809                   CMP/EQ      #9,R0
+    000006BE 8B02                   BF          L630
+    000006C0              L632:                             
+    000006C0 7501                   ADD         #1,R5
+    000006C2 3563                   CMP/GE      R6,R5
+    000006C4 8BEE                   BF          L631
+    000006C6              L630:                             
+      pine-ini.c   554            {
+      pine-ini.c   555                break;
+      pine-ini.c   556            }
+      pine-ini.c   557        }
+      pine-ini.c   558    
+      pine-ini.c   559        for (right = length - 1; right >= 0; --right)
+    000006C6 76FF                   ADD         #-1,R6
+    000006C8 4611                   CMP/PZ      R6
+    000006CA 8B10                   BF          L634
+    000006CC              L635:                             
+      pine-ini.c   560        {
+      pine-ini.c   561            if (!isWhitespace(src[right]))
+    000006CC 6063                   MOV         R6,R0
+    000006CE 00EC                   MOV.B       @(R0,R14),R0
+    000006D0 8820                   CMP/EQ      #32,R0
+    000006D2 8D09                   BT/S        L636
+    000006D4 6403                   MOV         R0,R4
+    000006D6 6043                   MOV         R4,R0
+    000006D8 880D                   CMP/EQ      #13,R0
+    000006DA 8905                   BT          L636
+    000006DC 6043                   MOV         R4,R0
+    000006DE 880A                   CMP/EQ      #10,R0
+    000006E0 8902                   BT          L636
+    000006E2 6043                   MOV         R4,R0
+    000006E4 8809                   CMP/EQ      #9,R0
+    000006E6 8B02                   BF          L634
+    000006E8              L636:                             
+    000006E8 76FF                   ADD         #-1,R6
+    000006EA 4611                   CMP/PZ      R6
+    000006EC 89EE                   BT          L635
+    000006EE              L634:                             
+      pine-ini.c   562            {
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 17-Mar-2023 12:51:29  PAGE   29
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+      pine-ini.c   563                break;
+      pine-ini.c   564            }
+      pine-ini.c   565        }
+      pine-ini.c   566    
+      pine-ini.c   567        return PineIni_ToSubstring(src, left, right);
+    000006EE 64E3                   MOV         R14,R4
+    000006F0 4F26                   LDS.L       @R15+,PR
+    000006F2 AF8E                   BRA         _PineIni_ToSubstring
+    000006F4 6EF6                   MOV.L       @R15+,R14
+      pine-ini.c   568    }
+      pine-ini.c   569    
+      pine-ini.c   570    char *PineIni_StringRemoveQuotes(char *src)
+    000006F6              _PineIni_StringRemoveQuotes:     ; function: PineIni_StringRemoveQuotes
+                                                           ; frame size=12
+    000006F6 2FE6                   MOV.L       R14,@-R15
+    000006F8 2FD6                   MOV.L       R13,@-R15
+    000006FA 4F22                   STS.L       PR,@-R15
+      pine-ini.c   571    {
+      pine-ini.c   572        int length;
+      pine-ini.c   573        int isSingleQuotesAround;
+      pine-ini.c   574        int isDoubleQuotesAround;
+      pine-ini.c   575    
+      pine-ini.c   576        PineIni_StringTrim(src);
+    000006FC BFC9                   BSR         _PineIni_StringTrim
+    000006FE 6E43                   MOV         R4,R14
+      pine-ini.c   577    
+      pine-ini.c   578        // Too short, no need to check
+      pine-ini.c   579        if ((length = strlen(src)) < 2)
+    00000700 D219                   MOV.L       L656+8,R2  ; _strlen
+    00000702 420B                   JSR         @R2
+    00000704 64E3                   MOV         R14,R4
+    00000706 6D03                   MOV         R0,R13
+    00000708 E302                   MOV         #2,R3
+    0000070A 3D33                   CMP/GE      R3,R13
+    0000070C 8B1A                   BF          L515
+      pine-ini.c   580        {
+      pine-ini.c   581            return src;
+      pine-ini.c   582        }
+      pine-ini.c   583    
+      pine-ini.c   584        isSingleQuotesAround = (src[0] == '"' && src[length - 1] == '"');
+    0000070E 60E0                   MOV.B       @R14,R0
+    00000710 8822                   CMP/EQ      #34,R0
+    00000712 8F07                   BF/S        L641
+    00000714 6503                   MOV         R0,R5
+    00000716 60D3                   MOV         R13,R0
+    00000718 70FF                   ADD         #-1,R0
+    0000071A 00EC                   MOV.B       @(R0,R14),R0
+    0000071C 8822                   CMP/EQ      #34,R0
+    0000071E 8B01                   BF          L641
+    00000720 A001                   BRA         L642
+    00000722 E401                   MOV         #1,R4
+    00000724              L641:                             
+    00000724 E400                   MOV         #0,R4
+    00000726              L642:                             
+      pine-ini.c   585        isDoubleQuotesAround = (src[0] == '\'' && src[length - 1] == '\'');
+    00000726 6053                   MOV         R5,R0
+    00000728 8827                   CMP/EQ      #39,R0
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 17-Mar-2023 12:51:29  PAGE   30
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+    0000072A 8B06                   BF          L643
+    0000072C 60D3                   MOV         R13,R0
+    0000072E 70FF                   ADD         #-1,R0
+    00000730 00EC                   MOV.B       @(R0,R14),R0
+    00000732 8827                   CMP/EQ      #39,R0
+    00000734 8B01                   BF          L643
+    00000736 A001                   BRA         L644
+    00000738 E501                   MOV         #1,R5
+    0000073A              L643:                             
+    0000073A E500                   MOV         #0,R5
+    0000073C              L644:                             
+      pine-ini.c   586    
+      pine-ini.c   587        if (!isSingleQuotesAround && !isDoubleQuotesAround)
+    0000073C 2448                   TST         R4,R4
+    0000073E 8B03                   BF          L645
+    00000740 2558                   TST         R5,R5
+    00000742 8B01                   BF          L645
+    00000744              L515:
+      pine-ini.c   588        {
+      pine-ini.c   589            return src;
+    00000744 A008                   BRA         L640
+    00000746 60E3                   MOV         R14,R0
+    00000748              L645:                             
+      pine-ini.c   590        }
+      pine-ini.c   591    
+      pine-ini.c   592        return PineIni_ToSubstring(src, 1, length - 2);
+    00000748 4F26                   LDS.L       @R15+,PR
+    0000074A 66D3                   MOV         R13,R6
+    0000074C 6DF6                   MOV.L       @R15+,R13
+    0000074E 76FE                   ADD         #-2,R6
+    00000750 E501                   MOV         #1,R5
+    00000752 64E3                   MOV         R14,R4
+    00000754 AF5D                   BRA         _PineIni_ToSubstring
+    00000756 6EF6                   MOV.L       @R15+,R14
+    00000758              L640:                             
+      pine-ini.c   593    }
+    00000758 4F26                   LDS.L       @R15+,PR
+    0000075A 6DF6                   MOV.L       @R15+,R13
+    0000075C 000B                   RTS
+    0000075E 6EF6                   MOV.L       @R15+,R14
+    00000760              L656:                             
+    00000760 <00000000>             .DATA.L     _atol
+    00000764 <00000000>             .DATA.L     _atof
+    00000768 <00000000>             .DATA.L     _strlen
+    0000076C <00000000>             .DATA.L     _malloc
+    00000770 <00000000>             .DATA.L     __slow_strcpy
+    00000774 <00000000>             .DATA.L     _free
+D   00000000              _PINE_INI_ERRMSG:                ; static: PINE_INI_ERRMSG
+    00000000 <00000000>             .DATA.L     L296,L297,L298,L299,L300
+             <00000000>   
+             <00000000>   
+             <00000000>   
+             <00000000>   
+C   00000000              L321:
+    00000000 00                     .DATA.B     H'00
+    00000001 00000001               .RES.B      1
+    00000002 00000002               .RES.W      1
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 17-Mar-2023 12:51:29  PAGE   31
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+    00000004              L349:
+    00000004 5F64656661             .SDATA      "_default"
+             756C74       
+    0000000C 00                     .DATA.B     H'00
+    0000000D 00000001               .RES.B      1
+    0000000E 00000002               .RES.W      1
+    00000010              L296:
+    00000010 4E6F206572             .SDATA      "No error"
+             726F72       
+    00000018 00                     .DATA.B     H'00
+    00000019 00000001               .RES.B      1
+    0000001A 00000002               .RES.W      1
+    0000001C              L297:
+    0000001C 496C6C6567             .SDATA      "Illegal pattern"
+             616C207061   
+             747465726E   
+    0000002B 00                     .DATA.B     H'00
+    0000002C              L298:
+    0000002C 456D707479             .SDATA      "Empty key"
+             206B6579     
+    00000035 00                     .DATA.B     H'00
+    00000036 00000002               .RES.W      1
+    00000038              L299:
+    00000038 5365637469             .SDATA      "Sections exceed"
+             6F6E732065   
+             7863656564   
+    00000047 00                     .DATA.B     H'00
+    00000048              L300:
+    00000048 506172616D             .SDATA      "Parameters exceed"
+             6574657273   
+             2065786365   
+             6564         
+    00000059 00                     .DATA.B     H'00
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 17-Mar-2023 12:51:29  PAGE    1
+
+
+******** STATISTICS INFORMATION ********
+
+
+********** ERROR INFORMATION ***********
+
+NUMBER OF ERRORS:           0
+NUMBER OF WARNINGS:         0
+
+
+
+
+******* SOURCE LINE INFORMATION ********
+
+COMPILED SOURCE LINE:      593
+
+
+
+******* SECTION SIZE INFORMATION *******
+
+PROGRAM  SECTION (P):                               00000778 Byte(s)
+CONSTANT SECTION (C):                               0000005A Byte(s)
+DATA     SECTION (D):                               00000014 Byte(s)
+BSS      SECTION (B):                               00000000 Byte(s)
+
+ TOTAL PROGRAM SIZE: 000007E6 Byte(s)
+
+
+
+********** LABEL INFORMATION ***********
+
+NUMBER OF EXTERNAL REFERENCE SYMBOLS:            7
+NUMBER OF EXTERNAL DEFINITION SYMBOLS:          24
+NUMBER OF INTERNAL/EXTERNAL SYMBOLS:           133
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+*** COMMAND PARAMETER ***
+
+
+  -subcommand=C:\Users\hasee\AppData\Local\Temp\hmkDDA0.tmp 
+
