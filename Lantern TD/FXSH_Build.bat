@@ -10,7 +10,7 @@ if exist FXADDINror.bin  del FXADDINror.bin
 cd ..
 if not exist debug\FXADDINror.bin  goto error
 
-"D:\360MoveData\Users\hasee\Desktop\Tools\MakeAddinHeader363.exe" "D:\c++learning\Lantern TD"
+"D:\360MoveData\Users\hasee\Desktop\Tools\MakeAddinHeader363.exe" "D:\c++learning\Lantern-TD\Lantern TD"
 if not exist LANTERNT.G1A  goto error
 echo Build has completed.
 goto end

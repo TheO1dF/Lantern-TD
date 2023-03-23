@@ -5,8 +5,8 @@
 # Directory defines
 TCDIR = D:\360MoveData\Users\hasee\Desktop\OS\SH
 OSDIR = D:\360MoveData\Users\hasee\Desktop\OS
-APPDIR = D:\c++learning\Lantern TD
-OUTDIR = D:\c++learning\Lantern TD\Debug
+APPDIR = D:\c++learning\Lantern-TD\Lantern TD
+OUTDIR = D:\c++learning\Lantern-TD\Lantern TD\Debug
 
 ################
 # Main Defines

@@ -2,19 +2,19 @@
 
 [_1]
 Type=5
-Order=2
+Order=0
 Top=0
 Left=7185
 Height=7125
 Width=7185
 State=0
 Flags=00000020
-Setting=320:1:LanternT.c
+Setting=318:1:LanternT.c
 OptionA=0
 
 [_2]
 Type=1
-Order=5
+Order=2
 Top=0
 Left=0
 Height=7125
@@ -26,7 +26,7 @@ OptionB=15
 
 [_3]
 Type=6
-Order=3
+Order=1
 Top=7125
 Left=7185
 Height=7125
@@ -48,7 +48,7 @@ OptionA=0
 
 [_5]
 Type=8
-Order=1
+Order=4
 Top=0
 Left=21555
 Height=7125
@@ -92,7 +92,7 @@ OptionA=0
 
 [_9]
 Type=15
-Order=0
+Order=3
 Top=0
 Left=14370
 Height=7125
@@ -171,7 +171,7 @@ OptionA=0
 
 [_33]
 Type=16
-Order=4
+Order=5
 Top=0
 Left=6990
 Height=9780
